@@ -1,0 +1,27 @@
+{
+  "default-font": {
+    "file": "default.fnt"
+  },
+  "default": {
+    "font": "default-font",
+    "color": "white",
+    "background": "default",
+    "fontScale": 1.0
+  },
+  "default-button": {
+    "font": "default-font",
+    "fontScale": 1.0,
+    "up": "button-up",
+    "down": "button-down",
+    "checked": "button-checked"
+  },
+  "button-up": {
+    "drawable": "button-up"
+  },
+  "button-down": {
+    "drawable": "button-down"
+  },
+  "button-checked": {
+    "drawable": "button-checked"
+  }
+}
