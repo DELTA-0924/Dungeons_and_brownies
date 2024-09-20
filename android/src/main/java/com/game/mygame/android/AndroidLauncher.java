@@ -4,8 +4,7 @@ import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import com.game.mygame.GameScreen;
-import com.game.mygame.Roque;
+import com.game.mygame.screen.Roque;
 
 /** Launches the Android application. */
 public class AndroidLauncher extends AndroidApplication {
