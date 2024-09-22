@@ -16,7 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class MainMenuScreen implements Screen {
     final Roque game;
-     Music menuMusic;
+
     Texture texture;
     OrthographicCamera camera;
     TextButton playButton,quitButton;
@@ -88,16 +88,16 @@ public class MainMenuScreen implements Screen {
         texture.dispose(); // Dispose the texture
         stage.dispose(); // Dispose the stage, which removes and disposes of actors like buttons
         skin.dispose(); // Dispose the skin
-        menuMusic.dispose();
+
     }
 
 
     @Override
     public void show() {
-        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("music/mainmenu.mp3"));
-        menuMusic.setLooping(true);
-        menuMusic.setVolume(1);
-        menuMusic.play();
+//        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("music/mainmenu.mp3"));
+//        menuMusic.setLooping(true);
+//        menuMusic.setVolume(1);
+//        menuMusic.play();
     }
 
     @Override
@@ -117,8 +117,8 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void hide() {
-        menuMusic.stop();
-        menuMusic.dispose();
+
+
     }
 
 }

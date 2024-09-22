@@ -2,8 +2,10 @@ package com.game.mygame.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -13,50 +15,38 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ScreenUtils;
 import java.util.Random;
+
+import map.Map;
+
 public class GameScreen implements Screen {
 
     OrthographicCamera camera;
+    Map map;
+    ShapeRenderer shapeRenderer;
     final Roque game;
     Stage stage;
     ImageButton playButton;
     Texture playButtonImage;
-    Texture[] groundTextures;
+    Texture greenGround;
     Texture stoneGround;
     int [][]grid;
     int tileSize=64;
+    int width=1080;
+    int height=720;
+
     public GameScreen(final Roque game){
         this.game=game;
 
-        Texture playButtonImage=new Texture("images/screen/buttonplay.png");
-        groundTextures=new Texture []{
-                new Texture ("images/texture/greenground2.png")
-        };
+        playButtonImage=new Texture("images/screen/buttonplay.png");
+        greenGround=new Texture ("images/texture/greenground2.png");
         stoneGround=new Texture("images/texture/stoneground.png");
-        int rows = Gdx.graphics.getHeight() / tileSize;
-        int cols = Gdx.graphics.getWidth() / tileSize;
 
-        // Создаем сетку, которая будет хранить случайные текстуры
-        grid = new int[rows][cols];
-
-        // Заполняем сетку случайными индексами текстур
-        Random random = new Random();
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < cols; col++) {
-                // Определяем, что клетки на определенной позиции будут тропинкой
-                if (col == cols / 2 || col == cols / 2 + 1) { // Широкая вертикальная тропинка по центру
-                    grid[row][col] = -1; // Для тропинки ставим специальный маркер
-                } else {
-                    // Для остальных клеток выбираем случайную текстуру земли
-                    grid[row][col] = random.nextInt(groundTextures.length); // Случайная земля
-                }
-            }
-        }
 
         stage=new Stage();
         Gdx.input.setInputProcessor(stage);
 
         camera=new OrthographicCamera();
-        camera.setToOrtho(false,800,480);
+        camera.setToOrtho(false,width,height);
         stage.getViewport().setCamera(camera);
 
         ImageButton.ImageButtonStyle style=new ImageButton.ImageButtonStyle();
@@ -70,9 +60,14 @@ public class GameScreen implements Screen {
             }
         });
 
+        shapeRenderer=new ShapeRenderer();
+        map=new Map(100,100);
+        new Thread(() -> {
+            map.generate(10); // Генерация карты в отдельном потоке
+        }).start();
 
         playButton.setSize(64,64);
-        playButton.setPosition(400-64,480-64);
+        playButton.setPosition(width-64,height-64);
         stage.addActor(playButton);
     }
     @Override
@@ -84,23 +79,26 @@ public class GameScreen implements Screen {
     public void render(float delta) {
         ScreenUtils.clear(1,1,1,1);
         camera.update();
-        game.batch.setProjectionMatrix(camera.combined);
-        game.batch.begin();
-        for (int row = 0; row < grid.length; row++) {
-            for (int col = 0; col < grid[row].length; col++) {
-                if (grid[row][col] == -1) {
-                    // Если это тропинка, отрисовываем текстуру булыжников
-                    game.batch.draw(stoneGround, col * tileSize, row * tileSize, tileSize, tileSize);
+        shapeRenderer.setProjectionMatrix(camera.combined);
+
+        // Начинаем рисовать карту
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        // Проходим по всей карте и рисуем её
+        for (int x = 0; x < map.m_width; x++) {
+            for (int y = 0; y < map.m_height; y++) {
+                int value = map.m_data.get(x + y * map.m_width);
+
+                if (value == 1) {
+                    shapeRenderer.setColor(Color.WHITE); // Комнаты белые
                 } else {
-                    // Если это земля, отрисовываем случайную текстуру земли
-                    int textureIndex = grid[row][col];
-                    game.batch.draw(groundTextures[textureIndex], col * tileSize, row * tileSize, tileSize, tileSize);
+                    shapeRenderer.setColor(Color.BLACK); // Пустое пространство черное
                 }
+                shapeRenderer.rect(x * 10, y * 10, 10, 10); // Рисуем клетку размером 10x10 пикселей
             }
         }
-        game.batch.end();
-        stage.act();
-        stage.draw();
+
+        shapeRenderer.end();
 
     }
 
@@ -108,10 +106,9 @@ public class GameScreen implements Screen {
     public void dispose() {
         stage.dispose();
         playButtonImage.dispose();
-        for (Texture texture : groundTextures) {
-            texture.dispose();
-        }
+        greenGround.dispose();
         stoneGround.dispose();
+        shapeRenderer.dispose();
     }
 
     @Override
