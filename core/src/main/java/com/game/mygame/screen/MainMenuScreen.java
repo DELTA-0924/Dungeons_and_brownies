@@ -2,6 +2,7 @@ package com.game.mygame.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
@@ -15,8 +16,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 
 public class MainMenuScreen implements Screen {
-    final Roque game;
 
+    AssetManager assetManager;
+    final Roque game;
+    Music music;
     Texture texture;
     OrthographicCamera camera;
     TextButton playButton,quitButton;
@@ -65,6 +68,7 @@ public class MainMenuScreen implements Screen {
         stage.addActor(playButton);
         stage.addActor(quitButton);
 
+
         texture=new Texture("images/screen/mainmenu-background.jpg");
     }
 
@@ -94,10 +98,24 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void show() {
-//        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("music/mainmenu.mp3"));
-//        menuMusic.setLooping(true);
-//        menuMusic.setVolume(1);
-//        menuMusic.play();
+//        // Инициализация AssetManager
+//        assetManager = new AssetManager();
+//
+//        // Асинхронная загрузка музыки
+//        assetManager.load("music/mainmenu.mp3", Music.class);
+//
+//        // Запускаем новый поток для проверки статуса загрузки
+//        new Thread(() -> {
+//            assetManager.finishLoading(); // Дожидаемся завершения загрузки
+//            music = assetManager.get("music/mainmenu.mp3", Music.class);
+//
+//            // Настраиваем и запускаем музыку в основном потоке
+//            Gdx.app.postRunnable(() -> {
+//                music.setLooping(true);
+//                music.setVolume(1);
+//                music.play();
+//            });
+//        }).start();
     }
 
     @Override
