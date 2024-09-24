@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -25,7 +26,7 @@ import map.Map;
 
 public class GameScreen implements Screen {
 
-
+    boolean mapgenerated=false;
     OrthographicCamera camera;
     Map map;
     LeafGenerator leaf;
@@ -69,6 +70,14 @@ public class GameScreen implements Screen {
 
             leaf.generateLeaves(width,height,maxRooms);
 
+            int  rooms;
+            for(Leaf curentLeaf:leaf.getLeafs()){
+                System.out.println("count halls "+(curentLeaf.halls.size()));
+                for(Rectangle currentHall:curentLeaf.halls)
+                    System.out.println("halls size "+currentHall.width+ " "+currentHall.height);
+            }
+
+
 
             stage.getViewport().setCamera(camera);
             stage.addActor(playButton);
@@ -84,21 +93,22 @@ public class GameScreen implements Screen {
             camera.update();
             shapeRenderer.setProjectionMatrix(camera.combined);
 
-
                     // Начинаем рисовать карту
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
                 for (Leaf currentLeaf : leaf.getLeafs()) {
-                    // Рисуем серую рамку
-                    shapeRenderer.setColor(Color.GRAY);
-                    shapeRenderer.rect(currentLeaf.x , currentLeaf.y , currentLeaf.width, currentLeaf.height); // Увеличиваем размеры рамки
 
                     // Рисуем черный внутренний прямоугольник
-                    shapeRenderer.setColor(Color.BLACK);
-                    shapeRenderer.rect(currentLeaf.x +4, currentLeaf.y + 4, currentLeaf.width - 5, currentLeaf.height - 5); // Уменьшаем размер для внутренней части
+
+                    shapeRenderer.setColor(Color.WHITE);
+                    shapeRenderer.rect(currentLeaf.room.x, currentLeaf.room.y, currentLeaf.room.width, currentLeaf.room.height);
+                    for (Rectangle currentHall : currentLeaf.halls) {
+                        shapeRenderer.rect(currentHall.x, currentHall.y, currentHall.width, currentHall.height);
+
+                    }
                 }
 
-                    shapeRenderer.end();
+            shapeRenderer.end();
         }
 
     @Override
