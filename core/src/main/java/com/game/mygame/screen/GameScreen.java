@@ -67,18 +67,7 @@ public class GameScreen implements Screen {
             playButton.setSize(64,64);
             playButton.setPosition(width-64,height-64);
 
-
             leaf.generateLeaves(width,height,maxRooms);
-
-            int  rooms;
-            for(Leaf curentLeaf:leaf.getLeafs()){
-                System.out.println("count halls "+(curentLeaf.halls.size()));
-                for(Rectangle currentHall:curentLeaf.halls)
-                    System.out.println("halls size "+currentHall.width+ " "+currentHall.height);
-            }
-
-
-
             stage.getViewport().setCamera(camera);
             stage.addActor(playButton);
 
@@ -89,7 +78,7 @@ public class GameScreen implements Screen {
         }
         @Override
         public void render(float delta) {
-            ScreenUtils.clear(1,0,0,1);
+            ScreenUtils.clear(0,0,0,1);
             camera.update();
             shapeRenderer.setProjectionMatrix(camera.combined);
 

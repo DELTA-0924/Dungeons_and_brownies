@@ -9,7 +9,7 @@ import java.util.Vector;
 
 
 public class Leaf {
-    private static final int MIN_LEAF_SIZE = 150;
+    private static final int MIN_LEAF_SIZE = 190;
     public int y, x, width, height; // позиция и размер Leaf
     public Leaf leftChild; // левый дочерний Leaf
     public Leaf rightChild; // правый дочерний Leaf
@@ -72,12 +72,12 @@ public class Leaf {
             Vector2 roomSize;
             Vector2 roomPos;
 //            roomSize=new Vector2(random.nextInt(3)*(width-2),random.nextInt(3)*(height-2));
-//            roomPos = new Vector2(random.nextInt(1)*(width-roomSize.x-1),random.nextInt(1)*(height-roomSize.y-1));
+//          roomPos = new Vector2(random.nextInt(1)*(width-roomSize.x-1),random.nextInt(1)*(height-roomSize.y-1));
 
             roomSize=new Vector2(randomNumber(80,width-2),randomNumber(80,height-2));
             roomPos = new Vector2(randomNumber( 1, (int) (width-roomSize.x-1)),randomNumber( 1,(int)(height-roomSize.y-1)  ));
             room =new Rectangle(x+(int)roomPos.x,y+(int)roomPos.y,(int)roomSize.x,(int)roomSize.y);
-            System.out.println("room size: "+room.width+" "+room.height);
+
         }
     }
 
@@ -104,7 +104,7 @@ public class Leaf {
                 return lRoom;
             else if (lRoom == null)
                 return rRoom;
-            else if (random.nextFloat() > .5)
+            else if (random.nextDouble() > .5)
                 return lRoom;
             else
                 return rRoom;
@@ -117,17 +117,27 @@ public class Leaf {
         // this looks pretty complicated, but it's just trying to figure out which point is where and then either draw a straight line, or a pair of lines to make a right-angle to connect them.
         // you could do some extra logic to make your halls more bendy, or do some more advanced things if you wanted.
         halls = new Vector<Rectangle>();
-        Vector2 point1 = new Vector2(randomNumber((int)l.x + 10, (int)(l.x+l.width) - 2), randomNumber((int)l.y + 10, (int)(l.y+l.height)- 2));
-        Vector2 point2 = new Vector2(randomNumber((int)r.x + 10, (int)(r.x+r.width) - 2), randomNumber((int)r.y + 10, (int)(r.y+r.height) - 2));
-        float w = (point2.x - point1.x)*10;
-        float h= (point2.y - point1.y)*10;
+
+        Vector2 point1 = new Vector2(
+            randomNumber((int) l.x + 10, (int) (l.x + l.width) - 20),
+            randomNumber((int) l.y + 10, (int) (l.y + l.height) - 20)
+        );
+
+        Vector2 point2 = new Vector2(
+            randomNumber((int) r.x + 10, (int) (r.x + r.width) - 20),
+            randomNumber((int) r.y + 10, (int) (r.y + r.height) - 20)
+        );
+
+        float w = point2.x - point1.x;
+        float h= point2.y - point1.y;
+        w*=5;
+        h*=5;
         int corridorWidth=25;
-        System.out.println("w= "+w+" h= "+h);
         if (w < 0)
         {
             if (h < 0)
             {
-                if (random.nextFloat() < 0.5)
+                if (random.nextDouble() < 0.5)
                 {
                     halls.add(new Rectangle(point2.x, point1.y, Math.abs(w), corridorWidth));
                     halls.add(new Rectangle(point2.x, point2.y, corridorWidth, Math.abs(h)));
@@ -140,7 +150,7 @@ public class Leaf {
             }
             else if (h > 0)
             {
-                if (random.nextFloat() < 0.5)
+                if (random.nextDouble() < 0.5)
                 {
                     halls.add(new Rectangle(point2.x, point1.y, Math.abs(w), corridorWidth));
                     halls.add(new Rectangle(point2.x, point1.y, corridorWidth, Math.abs(h)));
@@ -203,8 +213,10 @@ public class Leaf {
     }
 
     public static int randomNumber(int min, int max) {
+        if(max<=0||min<=0)
+            return 0;
         Random random = new Random();
-        return random.nextInt(Math.abs(Math.abs(max) - Math.abs(min)) + 1) + Math.abs(min);
+        return random.nextInt(max - min)+min;
     }
 
 }
