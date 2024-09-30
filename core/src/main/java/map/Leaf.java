@@ -71,7 +71,7 @@ public class Leaf {
         else{
             Vector2 roomSize;
             Vector2 roomPos;
-//            roomSize=new Vector2(random.nextInt(3)*(width-2),random.nextInt(3)*(height-2));
+//           roomSize=new Vector2(random.nextInt(3)*(width-2),random.nextInt(3)*(height-2));
 //          roomPos = new Vector2(random.nextInt(1)*(width-roomSize.x-1),random.nextInt(1)*(height-roomSize.y-1));
 
             roomSize=new Vector2(randomNumber(80,width-2),randomNumber(80,height-2));
@@ -113,14 +113,15 @@ public class Leaf {
 
     public void createHall(Rectangle l,  Rectangle r)
     {
-        // now we connect these two rooms together with hallways.
-        // this looks pretty complicated, but it's just trying to figure out which point is where and then either draw a straight line, or a pair of lines to make a right-angle to connect them.
-        // you could do some extra logic to make your halls more bendy, or do some more advanced things if you wanted.
+        // Вводим разные размеры для горизонтальных и вертикальных коридоров
+        int horizontalCorridorWidth = 50;  // Широкие горизонтальные коридоры
+        int verticalCorridorWidth = 30;    // Узкие вертикальные коридоры
+
         halls = new Vector<Rectangle>();
 
         Vector2 point1 = new Vector2(
             randomNumber((int) l.x + 10, (int) (l.x + l.width) - 20),
-            randomNumber((int) l.y + 10, (int) (l.y + l.height) - 20)
+            randomNumber((int) l.y + 1, (int) (l.y + l.height) - 20)
         );
 
         Vector2 point2 = new Vector2(
@@ -130,40 +131,40 @@ public class Leaf {
 
         float w = point2.x - point1.x;
         float h= point2.y - point1.y;
-        w*=5;
-        h*=5;
-        int corridorWidth=25;
+           w *= 3;
+          h *= 2;
+
         if (w < 0)
         {
             if (h < 0)
             {
                 if (random.nextDouble() < 0.5)
                 {
-                    halls.add(new Rectangle(point2.x, point1.y, Math.abs(w), corridorWidth));
-                    halls.add(new Rectangle(point2.x, point2.y, corridorWidth, Math.abs(h)));
+                    halls.add(new Rectangle(point2.x, point1.y, Math.abs(w), horizontalCorridorWidth));
+                    halls.add(new Rectangle(point2.x, point2.y, verticalCorridorWidth, Math.abs(h)));
                 }
                 else
                 {
-                    halls.add(new Rectangle(point2.x, point2.y, Math.abs(w), corridorWidth));
-                    halls.add(new Rectangle(point1.x, point2.y, corridorWidth, Math.abs(h)));
+                    halls.add(new Rectangle(point2.x, point2.y, Math.abs(w), horizontalCorridorWidth));
+                    halls.add(new Rectangle(point1.x, point2.y, verticalCorridorWidth, Math.abs(h)));
                 }
             }
             else if (h > 0)
             {
                 if (random.nextDouble() < 0.5)
                 {
-                    halls.add(new Rectangle(point2.x, point1.y, Math.abs(w), corridorWidth));
-                    halls.add(new Rectangle(point2.x, point1.y, corridorWidth, Math.abs(h)));
+                    halls.add(new Rectangle(point2.x, point1.y, Math.abs(w), horizontalCorridorWidth));
+                    halls.add(new Rectangle(point2.x, point1.y, verticalCorridorWidth, Math.abs(h)));
                 }
                 else
                 {
-                    halls.add(new Rectangle(point2.x, point2.y, Math.abs(w), corridorWidth));
-                    halls.add(new Rectangle(point1.x, point1.y, corridorWidth, Math.abs(h)));
+                    halls.add(new Rectangle(point2.x, point2.y, Math.abs(w), horizontalCorridorWidth));
+                    halls.add(new Rectangle(point1.x, point1.y, verticalCorridorWidth, Math.abs(h)));
                 }
             }
             else // if (h == 0)
             {
-                halls.add(new Rectangle(point2.x, point2.y, Math.abs(w), corridorWidth));
+                halls.add(new Rectangle(point2.x, point2.y, Math.abs(w), horizontalCorridorWidth));
             }
         }
         else if (w > 0)
@@ -172,42 +173,42 @@ public class Leaf {
             {
                 if (random.nextDouble() < 0.5)
                 {
-                    halls.add(new Rectangle(point1.x, point2.y, Math.abs(w), corridorWidth));
-                    halls.add(new Rectangle(point1.x, point2.y, corridorWidth, Math.abs(h)));
+                    halls.add(new Rectangle(point1.x, point2.y, Math.abs(w), horizontalCorridorWidth));
+                    halls.add(new Rectangle(point1.x, point2.y, verticalCorridorWidth, Math.abs(h)));
                 }
                 else
                 {
-                    halls.add(new Rectangle(point1.x, point1.y, Math.abs(w), corridorWidth));
-                    halls.add(new Rectangle(point2.x, point2.y, corridorWidth, Math.abs(h)));
+                    halls.add(new Rectangle(point1.x, point1.y, Math.abs(w), horizontalCorridorWidth));
+                    halls.add(new Rectangle(point2.x, point2.y, verticalCorridorWidth, Math.abs(h)));
                 }
             }
             else if (h > 0)
             {
                 if (random.nextDouble() < 0.5)
                 {
-                    halls.add(new Rectangle(point1.x, point1.y, Math.abs(w), corridorWidth));
-                    halls.add(new Rectangle(point2.x, point1.y, corridorWidth, Math.abs(h)));
+                    halls.add(new Rectangle(point1.x, point1.y, Math.abs(w), horizontalCorridorWidth));
+                    halls.add(new Rectangle(point2.x, point1.y, verticalCorridorWidth, Math.abs(h)));
                 }
                 else
                 {
-                    halls.add(new Rectangle(point1.x, point2.y, Math.abs(w), corridorWidth));
-                    halls.add(new Rectangle(point1.x, point1.y, corridorWidth, Math.abs(h)));
+                    halls.add(new Rectangle(point1.x, point2.y, Math.abs(w), horizontalCorridorWidth));
+                    halls.add(new Rectangle(point1.x, point1.y, verticalCorridorWidth, Math.abs(h)));
                 }
             }
             else // if (h == 0)
             {
-                halls.add(new Rectangle(point1.x, point1.y, Math.abs(w), corridorWidth));
+                halls.add(new Rectangle(point1.x, point1.y, Math.abs(w), horizontalCorridorWidth));
             }
         }
         else // if (w == 0)
         {
             if (h < 0)
             {
-                halls.add(new Rectangle(point2.x, point2.y, corridorWidth, Math.abs(h)));
+                halls.add(new Rectangle(point2.x, point2.y, verticalCorridorWidth, Math.abs(h)));
             }
             else if (h > 0)
             {
-                halls.add(new Rectangle(point1.x, point1.y, corridorWidth, Math.abs(h)));
+                halls.add(new Rectangle(point1.x, point1.y, verticalCorridorWidth, Math.abs(h)));
             }
         }
     }

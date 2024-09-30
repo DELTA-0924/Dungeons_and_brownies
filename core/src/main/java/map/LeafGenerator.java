@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 public class LeafGenerator {
-    private static final int MAX_LEAF_SIZE = 340;
+    private static final int MAX_LEAF_SIZE = 200;
     private List<Leaf> leafs = new ArrayList<>(); // список Leaf
     private Random random = new Random();
 

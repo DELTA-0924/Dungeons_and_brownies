@@ -7,9 +7,8 @@ import static java.lang.Math.abs;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.PriorityQueue;
-import java.util.Vector;
+
 
 import common.Point;
 import common.Room;
@@ -82,7 +81,6 @@ public class Map {
                     parents.set(p.x + p.y * m_width, i);
                 }
             }
-            System.out.println("Generation ways ..." );
         }
         // путь найден - теперь прокладываем его на карте, начиная с конца
         Point point = finish;
@@ -92,13 +90,12 @@ public class Map {
             final int[] direction = directions[parents.get(point.x + point.y * m_width)];
             point.x += direction[0];
             point.y += direction[1];
-            System.out.println("mark ways ..." );
+
         }
     }
 
     int calcCost(final Point p, final Point finish) {
         int cost=abs(p.x - finish.x) + abs(p.y - finish.y);
-        System.out.println("const "+cost);
         return cost;
     }
 }
