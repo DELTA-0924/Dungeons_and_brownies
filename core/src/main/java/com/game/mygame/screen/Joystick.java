@@ -22,10 +22,10 @@ public class Joystick {
 
     public void update(float touchX, float touchY) {
         if (isTouching) {
+            System.out.println("двигается ");
             float dx = touchX - centerX;
             float dy = touchY - centerY;
             float distance = (float) Math.sqrt(dx * dx + dy * dy);
-
             if (distance < radius) {
                 knobPosition.set(touchX, touchY);
             } else {
@@ -36,11 +36,9 @@ public class Joystick {
     }
 
     public void touchDown(float x, float y) {
-        if (x >= centerX - radius && x <= centerX + radius &&
-            y >= centerY - radius && y <= centerY + radius) {
+            System.out.println("трогаешь");
             isTouching = true;
             knobPosition.set(x, y);
-        }
     }
 
     public void touchUp() {
@@ -56,11 +54,11 @@ public class Joystick {
     }
 
     public void draw(ShapeRenderer shapeRenderer) {
-        // Рисуем основание джойстика
+
         shapeRenderer.setColor(Color.GRAY);
         shapeRenderer.circle(centerX, centerY, radius);
 
-        // Рисуем ручку джойстика
+
         shapeRenderer.setColor(Color.BLUE);
         shapeRenderer.circle(knobPosition.x, knobPosition.y, knobRadius);
     }

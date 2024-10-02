@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -46,8 +47,22 @@ public class GameScreen implements Screen , InputProcessor {
     int width=1080,cameraWidth=480;
     int height=720 ,cameraHeight=260;
 
+    float screenWidth = Gdx.graphics.getWidth();
+    float screenHeight = Gdx.graphics.getHeight();
 
-        public GameScreen(final Roque game){
+    // Коэффициенты масштабирования
+    float widthScale = screenWidth / cameraWidth;
+    float heightScale = screenHeight / cameraHeight;
+
+    // Устанавливаем размеры джойстика с учетом масштаба
+    float joystickCenterX = 100 * widthScale; // Пример центра джойстика
+    float joystickCenterY = 100 * heightScale;
+    float joystickRadius = 50 * Math.min(widthScale, heightScale); // Радиус джойстика
+    float knobRadius = 20 * Math.min(widthScale, heightScale); // Радиус ручки джойстика
+
+
+
+    public GameScreen(final Roque game){
             this.game=game;
             int maxRooms=15;
             playButtonImage=new Texture("images/screen/buttonplay.png");
@@ -55,10 +70,10 @@ public class GameScreen implements Screen , InputProcessor {
             joystick = new Joystick(100, 100, 50, 20);
             leaf=new LeafGenerator();
             stage=new Stage();
-
-            Gdx.input.setInputProcessor(stage);
+            Gdx.input.setInputProcessor(this);
+//            Gdx.input.setInputProcessor(stage);
             camera=new OrthographicCamera();
-            camera.setToOrtho(false,480,260);
+            camera.setToOrtho(false,cameraWidth,cameraHeight);
 
 
             ImageButton.ImageButtonStyle style=new ImageButton.ImageButtonStyle();
@@ -80,17 +95,10 @@ public class GameScreen implements Screen , InputProcessor {
         }
         @Override
         public void show() {
-
-
-
             character=new Texture("images/texture/character/character.png");
-            player=new Player(character,
-                ((leaf.getLeafs().get(1).width-player.getWidth())+(leaf.getLeafs().get(1).x+player.getWidth()))/2,
-                ((leaf.getLeafs().get(1).height-player.getHeight())+(leaf.getLeafs().get(1).y+player.getHeight()))/2,100);
-
+            player=new Player(character,100,100,100);
             roomBackground=new Texture("images/texture/room.jpg");
             roomBackground.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
-
             hallWayBackground=new Texture("images/texture/room.jpg");
             hallWayBackground.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
         }
@@ -143,13 +151,20 @@ public class GameScreen implements Screen , InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        joystick.touchDown(screenX, screenY);
+        System.out.println("Трогаешь "+button);
+        Vector3 touchPos = new Vector3(screenX, screenY, 0);
+
+        // unproject преобразует экранные координаты (screenX, screenY) в мировые координаты камеры
+        camera.unproject(touchPos);
+        joystick.touchDown(touchPos.x, touchPos.y);
+
         return true;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         joystick.touchUp();
+
         return true;
     }
 
@@ -194,11 +209,13 @@ public class GameScreen implements Screen , InputProcessor {
 
     @Override
     public boolean keyUp(int keycode) {
+
         return false;
     }
 
     @Override
     public boolean keyTyped(char character) {
+
         return false;
     }
 
