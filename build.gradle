@@ -29,7 +29,7 @@ allprojects {
 
 configure(subprojects - project(':android')) {
   apply plugin: 'java-library'
-  sourceCompatibility = 17
+  sourceCompatibility = 11
   compileJava {
     options.incremental = true
   }
@@ -54,7 +54,7 @@ configure(subprojects - project(':android')) {
 
 subprojects {
   version = '$projectVersion'
-  ext.appName = 'Mygame'
+  ext.appName = 'Dunguons and brownies'
   repositories {
     mavenCentral()
     maven { url 'https://s01.oss.sonatype.org' }
@@ -66,4 +66,4 @@ subprojects {
   }
 }
 
-eclipse.project.name = 'Mygame' + '-parent'
+eclipse.project.name = 'Dunguons and brownies' + '-parent'

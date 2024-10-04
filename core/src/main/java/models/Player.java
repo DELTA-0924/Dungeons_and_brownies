@@ -17,23 +17,26 @@ public class Player {
 
     public Player(World world, Texture texture , float x, float y, float speed){
         this.texture=texture;
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(x, y);
-        bodyDef.type = BodyDef.BodyType.DynamicBody; // Динамическое тело
-        body = world.createBody(bodyDef);
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox(width / 2, height / 2);
-      // Половина ширины и высоты игрока
-
-        // Определяем фиксацию
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.shape = shape;
-        fixtureDef.density = 1.0f; // Плотность
-        fixtureDef.friction = 0.5f; // Трение
-        fixtureDef.restitution = 0.2f; // Упругость
-
-        body.createFixture(fixtureDef);
-        shape.dispose();
+        this.x=x;
+        this.y=y;
+        this.speed=speed;
+//        BodyDef bodyDef = new BodyDef();
+//        bodyDef.position.set(x, y);
+//        bodyDef.type = BodyDef.BodyType.DynamicBody; // Динамическое тело
+//        body = world.createBody(bodyDef);
+//        PolygonShape shape = new PolygonShape();
+//        shape.setAsBox(width / 2, height / 2);
+//      // Половина ширины и высоты игрока
+//
+//        // Определяем фиксацию
+//        FixtureDef fixtureDef = new FixtureDef();
+//        fixtureDef.shape = shape;
+//        fixtureDef.density = 1.0f; // Плотность
+//        fixtureDef.friction = 0.5f; // Трение
+//        fixtureDef.restitution = 0.2f; // Упругость
+//
+//        body.createFixture(fixtureDef);
+//        shape.dispose();
     }
     public void render(SpriteBatch batch) {
         // Отрисовываем персонажа

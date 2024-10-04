@@ -193,11 +193,11 @@ public class GameScreen implements Screen , InputProcessor {
                 for (Leaf currentLeaf : leaf.getLeafs()) {
                     // Отрисовка комнат
                     game.batch.draw(roomBackground, currentLeaf.room.x, currentLeaf.room.y, currentLeaf.room.width, currentLeaf.room.height);
-                    map.createRoom( currentLeaf.room.x, currentLeaf.room.y, currentLeaf.room.width, currentLeaf.room.height);
+                  //  map.createRoom( currentLeaf.room.x, currentLeaf.room.y, currentLeaf.room.width, currentLeaf.room.height);
                     // Отрисовка коридоров
                     for (Rectangle currentHall : currentLeaf.halls) {
                         drawTiledTexture(game.batch, hallWayBackground, currentHall.x, currentHall.y, currentHall.width, currentHall.height);
-                        map.createCorridor( currentHall.x, currentHall.y, currentHall.width, currentHall.height);
+                       // map.createCorridor( currentHall.x, currentHall.y, currentHall.width, currentHall.height);
                     }
                 }
                 float moveX = touchpad.getKnobPercentX();
