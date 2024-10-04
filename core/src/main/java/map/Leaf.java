@@ -9,7 +9,7 @@ import java.util.Vector;
 
 
 public class Leaf {
-    private static final int MIN_LEAF_SIZE = 190;
+    private static final int MIN_LEAF_SIZE = 300;
     public int y, x, width, height; // позиция и размер Leaf
     public Leaf leftChild; // левый дочерний Leaf
     public Leaf rightChild; // правый дочерний Leaf
@@ -24,37 +24,48 @@ public class Leaf {
         this.height = height;
         halls = new Vector<>();
     }
-
     public boolean split() {
-        // начать деление Leaf на два дочерних
-        if (leftChild != null || rightChild != null)
-            return false; // уже разделено! Завершение!
+        // Проверяем, уже ли есть дочерние элементы
+        if (leftChild != null || rightChild != null) {
+            return false; // Уже разделено
+        }
 
-        // определить направление деления
+        // Определяем направление деления (по горизонтали или вертикали)
         boolean splitH = new Random().nextBoolean();
-        if (width > height && (double) width / height >= 1.25)
-            splitH = false;
-        else if (height > width && (double) height / width >= 1.25)
-            splitH = true;
 
-        int max = splitH ? height : width; // определить максимальную высоту или ширину
-        max -= MIN_LEAF_SIZE;
+        // Проверка на соотношение сторон, чтобы принять решение о направлении деления
+        if (width > height && (double) width / height >= 1.25) {
+            splitH = false; // Делим по вертикали
+        } else if (height > width && (double) height / width >= 1.25) {
+            splitH = true; // Делим по горизонтали
+        }
 
-        if (max <= MIN_LEAF_SIZE)
-            return false; // область слишком мала для дальнейшего деления
+        // Определяем максимальный размер для деления с учетом минимального размера
+        int max = splitH ? height : width;
 
-        int split = MIN_LEAF_SIZE + new Random().nextInt(max - MIN_LEAF_SIZE); // определить, где будем делить
+        // Убедимся, что можно выполнить деление
+        if (max <= MIN_LEAF_SIZE * 2) {
+            return false; // Область слишком мала для деления на две части с минимальным размером
+        }
 
-        // создать левые и правые дочерние Leaf в зависимости от направления деления
+        // Определяем точку деления. Она должна быть такой, чтобы обе части после деления
+        // были не меньше MIN_LEAF_SIZE
+        int split = MIN_LEAF_SIZE + new Random().nextInt(max - MIN_LEAF_SIZE * 2);
+
+        // Создаём дочерние элементы на основе выбранного направления деления
         if (splitH) {
+            // Делим по горизонтали
             leftChild = new Leaf(x, y, width, split);
             rightChild = new Leaf(x, y + split, width, height - split);
         } else {
+            // Делим по вертикали
             leftChild = new Leaf(x, y, split, height);
             rightChild = new Leaf(x + split, y, width - split, height);
         }
-        return true; // деление успешно!
+
+        return true; // Деление успешно!
     }
+
     public void createRooms(){
         if(leftChild!=null || rightChild!=null){
             if(leftChild!=null){
@@ -71,21 +82,22 @@ public class Leaf {
         else{
             Vector2 roomSize;
             Vector2 roomPos;
-//           roomSize=new Vector2(random.nextInt(3)*(width-2),random.nextInt(3)*(height-2));
-//          roomPos = new Vector2(random.nextInt(1)*(width-roomSize.x-1),random.nextInt(1)*(height-roomSize.y-1));
-
-            roomSize=new Vector2(randomNumber(80,width-2),randomNumber(80,height-2));
+            roomSize=new Vector2(randomNumber(200,width-20),randomNumber(200,height-20));
             roomPos = new Vector2(randomNumber( 1, (int) (width-roomSize.x-1)),randomNumber( 1,(int)(height-roomSize.y-1)  ));
+//            System.out.println("room size"+roomSize.x+" "+roomSize.y);
+//            System.out.println("room pos"+roomPos.x+" "+roomPos.y);
             room =new Rectangle(x+(int)roomPos.x,y+(int)roomPos.y,(int)roomSize.x,(int)roomSize.y);
-
+            //System.out.println("room pos x="+room.x +" y="+room.y+" room size"+room.width+" "+ room.height);
         }
     }
 
     public Rectangle getRoom()
     {
         // iterate all the way through these leafs to find a room, if one exists.
-        if (room != null)
+        if (room != null &&(!(room.height==0 ||room.width==0 || room.x==0 ||room.y==0) )) {
+            //System.out.println("Returning current room: " + room.x + ", " + room.y + " size: " + room.width + "x" + room.height);
             return room;
+        }
         else
         {
             Rectangle lRoom=new Rectangle();
@@ -111,29 +123,37 @@ public class Leaf {
         }
     }
 
-    public void createHall(Rectangle l,  Rectangle r)
-    {
-        // Вводим разные размеры для горизонтальных и вертикальных коридоров
-        int horizontalCorridorWidth = 50;  // Широкие горизонтальные коридоры
-        int verticalCorridorWidth = 30;    // Узкие вертикальные коридоры
+    public void createHall(Rectangle l, Rectangle r) {
+        // Увеличиваем ширину коридоров
+        int horizontalCorridorWidth = 60;  // Увеличиваем ширину горизонтальных коридоров
+        int verticalCorridorWidth = 60;    // Увеличиваем ширину вертикальных коридоров
 
-        halls = new Vector<Rectangle>();
+        halls = new Vector<>();
+        if(l.height==0 ||r.height==0 || l.x==0 || r.x==0 || l.width==0 || r.width==0)
+            return;
+        // Выбираем случайные точки внутри двух комнат
+        Vector2 point1=new Vector2(0,0);
+        Vector2 point2=new Vector2(0,0);
+        try {
+             point1 = new Vector2(
+                randomNumber((int) l.x + 60, (int) (l.x + l.width) - 60),
+                randomNumber((int) l.y + 60, (int) (l.y + l.height) - 60)
+            );
+             point2 = new Vector2(
+                randomNumber((int) r.x + 60, (int) (r.x + r.width) - 60),
+                randomNumber((int) r.y + 60, (int) (r.y + r.height) - 60)
+            );
 
-        Vector2 point1 = new Vector2(
-            randomNumber((int) l.x + 10, (int) (l.x + l.width) - 20),
-            randomNumber((int) l.y + 1, (int) (l.y + l.height) - 20)
-        );
-
-        Vector2 point2 = new Vector2(
-            randomNumber((int) r.x + 10, (int) (r.x + r.width) - 20),
-            randomNumber((int) r.y + 10, (int) (r.y + r.height) - 20)
-        );
-
+        }catch (IllegalArgumentException e){
+//            System.out.println("rRoom x "+r.x + "width"+ r.width);
+//            System.out.println("rRoom x "+r.y+" height"+ r.height);
+//
+//            System.out.println("lRoom x "+l.x + " width"+ l.width);
+//            System.out.println("lRoom x "+l.y+" height"+ l.height);
+        }
+        // Вычисляем разницы между точками по X и Y
         float w = point2.x - point1.x;
-        float h= point2.y - point1.y;
-           w *= 3;
-          h *= 2;
-
+        float h = point2.y - point1.y;
         if (w < 0)
         {
             if (h < 0)
@@ -214,8 +234,6 @@ public class Leaf {
     }
 
     public static int randomNumber(int min, int max) {
-        if(max<=0||min<=0)
-            return 0;
         Random random = new Random();
         return random.nextInt(max - min)+min;
     }

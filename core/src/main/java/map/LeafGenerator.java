@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Random;
 
 public class LeafGenerator {
-    private static final int MAX_LEAF_SIZE = 200;
+    private static final int MAX_LEAF_WIDTH = 400;
+    private static final int MAX_LEAF_HEIGHT = 600;
     private List<Leaf> leafs = new ArrayList<>(); // список Leaf
     private Random random = new Random();
 
@@ -24,14 +25,12 @@ public class LeafGenerator {
 
         // продолжаем цикл, пока можем делить Leaf
         while (didSplit) {
-
             didSplit = false;
             for (int i=0;i<leafs.size();i++)  {
-                if(leafs.size()>maxRooms)
-                    break;
+
                 if (leafs.get(i).leftChild == null && leafs.get(i).rightChild == null) { // если этот Leaf еще не разделен...
                     // если Leaf слишком большой или 75% шанса...
-                    if (leafs.get(i).width > MAX_LEAF_SIZE || leafs.get(i).height > MAX_LEAF_SIZE || random.nextDouble()>0.25) {
+                    if (leafs.get(i).width > MAX_LEAF_WIDTH || leafs.get(i).height > MAX_LEAF_HEIGHT || random.nextDouble()>0.25) {
                         if (leafs.get(i).split()) { // разделить Leaf!
                             // если мы разделили, добавим дочерние Leaf в список для следующей итерации
                             leafs.add(leafs.get(i).leftChild);

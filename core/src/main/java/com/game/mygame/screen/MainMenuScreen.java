@@ -9,9 +9,11 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 
 public class MainMenuScreen implements Screen {
@@ -19,11 +21,11 @@ public class MainMenuScreen implements Screen {
     AssetManager assetManager;
     final Roque game;
     Music music;
-    Texture texture;
+    Texture playButtonTexture,quitButtonTexture, backgroundTexture;
     OrthographicCamera camera;
-    TextButton playButton,quitButton;
+    Button playButton,quitButton;
     Stage stage;
-    Skin skin;
+
     public MainMenuScreen(final Roque game){
         this.game=game;
         stage=new Stage();
@@ -33,11 +35,14 @@ public class MainMenuScreen implements Screen {
         camera.setToOrtho(false,800,480);
         stage.getViewport().setCamera(camera);
 
-        skin = new Skin(Gdx.files.internal("skin/star-soldier-ui.json"));
 
+        playButtonTexture=new Texture("images/screen/playButtonTexture.png");
+        quitButtonTexture=new Texture("images/screen/quitButtonTexture.png");
+        backgroundTexture=new Texture("images/screen/mainmenu-background.jpg");
 
-        playButton=new TextButton("Play",skin);
-        quitButton=new TextButton("Quit",skin);
+        playButton=new Button(new TextureRegionDrawable(playButtonTexture));
+        quitButton=new Button(new TextureRegionDrawable(quitButtonTexture));
+
 
         playButton.setWidth(250);
         playButton.setHeight(150);
@@ -47,9 +52,6 @@ public class MainMenuScreen implements Screen {
 
         playButton.setPosition(100,180);
         quitButton.setPosition(100,30);
-
-        playButton.getLabel().setFontScale(2);
-        quitButton.getLabel().setFontScale(2);
 
         playButton.addListener(new ClickListener(){
             @Override
@@ -66,9 +68,6 @@ public class MainMenuScreen implements Screen {
         });
         stage.addActor(playButton);
         stage.addActor(quitButton);
-
-
-        texture=new Texture("images/screen/mainmenu-background.jpg");
     }
 
 
@@ -80,7 +79,7 @@ public class MainMenuScreen implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
         game.font.getData().setScale(5,5);
         game.batch.begin();
-        game.batch.draw(texture,0,0);
+        game.batch.draw(backgroundTexture,0,0);
 
         game.batch.end();
         stage.act();
@@ -88,9 +87,11 @@ public class MainMenuScreen implements Screen {
     }
     @Override
     public void dispose() {
-        texture.dispose(); // Dispose the texture
+        backgroundTexture.dispose(); // Dispose the texture
+        playButtonTexture.dispose();
+        quitButtonTexture.dispose();
         stage.dispose(); // Dispose the stage, which removes and disposes of actors like buttons
-        skin.dispose(); // Dispose the skin
+
 
     }
 

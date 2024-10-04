@@ -5,25 +5,30 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
+
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
+
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+
+
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Event;
-import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
+
+import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ScreenUtils;
-import java.util.Random;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+import com.badlogic.gdx.physics.box2d.World;
 import common.Point;
 import map.Leaf;
 import map.LeafGenerator;
@@ -31,72 +36,144 @@ import map.Map;
 
 public class GameScreen implements Screen , InputProcessor {
 
+    private World world;
     OrthographicCamera camera;
-    ShapeRenderer shapeRenderer;
+    private Touchpad touchpad;
+    private Touchpad.TouchpadStyle touchpadStyle;
     LeafGenerator leaf;
     Player player;
     final Roque game;
     Stage stage;
-    ImageButton playButton;
-    Texture playButtonImage;
+    Stage uiStage;
+    private Button upButton, downButton, leftButton, rightButton, playButton;
+    private Texture upTexture, downTexture, leftTexture, rightTexture,playTexture;
+    boolean mapGenereted=false;
     Texture roomBackground;
     Texture hallWayBackground;
-    Joystick joystick;
-
+    private Texture touchBackground;
+    private Texture touchKnob;
     Texture character;
-    int width=1080,cameraWidth=480;
-    int height=720 ,cameraHeight=260;
-
-    float screenWidth = Gdx.graphics.getWidth();
-    float screenHeight = Gdx.graphics.getHeight();
-
-    // Коэффициенты масштабирования
-    float widthScale = screenWidth / cameraWidth;
-    float heightScale = screenHeight / cameraHeight;
-
-    // Устанавливаем размеры джойстика с учетом масштаба
-    float joystickCenterX = 100 * widthScale; // Пример центра джойстика
-    float joystickCenterY = 100 * heightScale;
-    float joystickRadius = 50 * Math.min(widthScale, heightScale); // Радиус джойстика
-    float knobRadius = 20 * Math.min(widthScale, heightScale); // Радиус ручки джойстика
-
-
-
+    int width=1920,cameraWidth=800;
+    int height=1080 ,cameraHeight=480;
+    float buttonWidth = 150;  // 50 пикселей
+    float buttonHeight = 150; // 50 пикселей
+    Map map;
     public GameScreen(final Roque game){
-            this.game=game;
-            int maxRooms=15;
-            playButtonImage=new Texture("images/screen/buttonplay.png");
-            shapeRenderer=new ShapeRenderer();
-            joystick = new Joystick(100, 100, 50, 20);
-            leaf=new LeafGenerator();
-            stage=new Stage();
-            Gdx.input.setInputProcessor(this);
-//            Gdx.input.setInputProcessor(stage);
-            camera=new OrthographicCamera();
-            camera.setToOrtho(false,cameraWidth,cameraHeight);
+        this.game=game;
+        int maxRooms=20;
+        world = new World(new Vector2(0, 0), true);
+
+        camera=new OrthographicCamera();
+        camera.setToOrtho(false,cameraWidth,cameraHeight);
+
+        uiStage = new Stage(new ScreenViewport());
+
+/*
+        upTexture=new Texture("images/screen/buttonup.png");
+        downTexture=new Texture("images/screen/buttondown.png");
+        leftTexture=new Texture("images/screen/buttonleft.png");
+        rightTexture=new Texture("images/screen/buttonright.png");
+
+        upButton=new Button(new TextureRegionDrawable(upTexture));
+        downButton=new Button(new TextureRegionDrawable(downTexture));
+        leftButton=new Button(new TextureRegionDrawable(leftTexture));
+        rightButton=new Button(new TextureRegionDrawable(rightTexture));
+
+        upButton.setSize(buttonWidth, buttonHeight);
+        downButton.setSize(buttonWidth, buttonHeight);
+        leftButton.setSize(buttonWidth, buttonHeight);
+        rightButton.setSize(buttonWidth, buttonHeight);
+
+        upButton.setPosition(300, 325);
+        downButton.setPosition(300, 50);
+        leftButton.setPosition(150, 175);
+        rightButton.setPosition(450, 175);
+
+        upButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                player.move(0, player.speed * Gdx.graphics.getDeltaTime()); // Движение вверх
+            }
+        });
+
+        downButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                player.move(0, -player.speed * Gdx.graphics.getDeltaTime()); // Движение вниз
+            }
+        });
+
+        leftButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                player.move(-player.speed * Gdx.graphics.getDeltaTime(), 0); // Движение влево
+            }
+        });
+
+        rightButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                player.move(player.speed * Gdx.graphics.getDeltaTime(), 0); // Движение вправо
+            }
+        });
+
+*/
+
+        touchBackground = createCircleTexture(800, Color.GRAY, 0.5f); // Полупрозрачный серый фон
+        touchKnob = createCircleTexture(160, Color.WHITE, 1f);         // Непрозрачная белая ручка
+
+        // Создаем стиль для джойстика
+        touchpadStyle = new Touchpad.TouchpadStyle();
+        touchpadStyle.background = new TextureRegionDrawable(new TextureRegion(touchBackground));
+        touchpadStyle.knob = new TextureRegionDrawable(new TextureRegion(touchKnob));
+
+        // Создаем Touchpad
+        touchpad = new Touchpad(10, touchpadStyle); // Параметр deadzone
+        touchpad.setBounds(300, 200, 200, 200);
+        leaf=new LeafGenerator();
 
 
-            ImageButton.ImageButtonStyle style=new ImageButton.ImageButtonStyle();
-            style.up=new TextureRegionDrawable(playButtonImage);
-            playButton=new ImageButton(style);
-            playButton.addListener(new ClickListener() {
+        playTexture=new Texture("images/screen/playbutton.png");
+        playButton=new Button(new TextureRegionDrawable(playTexture));
+        playButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     game.setScreen(new MainMenuScreen(game));
                 }
             });
-            playButton.setSize(64,64);
-            playButton.setPosition(cameraWidth-64,cameraHeight-64);
+        playButton.setSize(64,64);
+        playButton.setPosition(width-64,height-64);
 
-            leaf.generateLeaves(width,height,maxRooms);
-            stage.getViewport().setCamera(camera);
-            stage.addActor(playButton);
+            leaf.generateLeaves(1500,1200,maxRooms);
 
-        }
+
+
+
+
+//        uiStage.addActor(playButton);
+//        uiStage.addActor(upButton);
+//        uiStage.addActor(downButton);
+//        uiStage.addActor(leftButton);
+//        uiStage.addActor(rightButton);
+        uiStage.addActor(touchpad);
+        Gdx.input.setInputProcessor(uiStage);
+        map=new Map(world);
+    }
         @Override
         public void show() {
             character=new Texture("images/texture/character/character.png");
-            player=new Player(character,100,100,100);
+            float playerPosX=0,playerPosY=0;
+            for (var currnetLeaf:leaf.getLeafs()) {
+                if((currnetLeaf.room.x+ currnetLeaf.room.width)!=0 && ((currnetLeaf.room.y+ currnetLeaf.room.height)!=0)){
+                    playerPosY=currnetLeaf.room.x;
+                    playerPosX=currnetLeaf.room.y;
+                    break;
+                }
+
+            }
+            player=new Player(world,character,playerPosY,playerPosX,100);
+
+
             roomBackground=new Texture("images/texture/room.jpg");
             roomBackground.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
             hallWayBackground=new Texture("images/texture/room.jpg");
@@ -105,70 +182,59 @@ public class GameScreen implements Screen , InputProcessor {
         @Override
         public void render(float delta) {
             ScreenUtils.clear(0, 0, 0, 1);
-            stage.act(delta);
+
 
             camera.position.set(player.getX() + player.getWidth() / 2, player.getY() + player.getHeight() / 2, 0);
             camera.update();
-
+            uiStage.getViewport().apply();
             game.batch.setProjectionMatrix(camera.combined);
             game.batch.begin();
-
-            // Рисуем карту с использованием SpriteBatch
-            for (Leaf currentLeaf : leaf.getLeafs()) {
-                // Отрисовка комнат
-                game.batch.draw(roomBackground, currentLeaf.room.x, currentLeaf.room.y, currentLeaf.room.width, currentLeaf.room.height);
-
-                // Отрисовка коридоров
-                for (Rectangle currentHall : currentLeaf.halls) {
-                    drawTiledTexture(game.batch, hallWayBackground, currentHall.x, currentHall.y, currentHall.width, currentHall.height);
+                // Рисуем карту с использованием SpriteBatch
+                for (Leaf currentLeaf : leaf.getLeafs()) {
+                    // Отрисовка комнат
+                    game.batch.draw(roomBackground, currentLeaf.room.x, currentLeaf.room.y, currentLeaf.room.width, currentLeaf.room.height);
+                    map.createRoom( currentLeaf.room.x, currentLeaf.room.y, currentLeaf.room.width, currentLeaf.room.height);
+                    // Отрисовка коридоров
+                    for (Rectangle currentHall : currentLeaf.halls) {
+                        drawTiledTexture(game.batch, hallWayBackground, currentHall.x, currentHall.y, currentHall.width, currentHall.height);
+                        map.createCorridor( currentHall.x, currentHall.y, currentHall.width, currentHall.height);
+                    }
                 }
+                float moveX = touchpad.getKnobPercentX();
+                float moveY = touchpad.getKnobPercentY();
+                player.move(moveX * player.speed * delta, moveY * player.speed * delta);
+                player.render(game.batch);
+                game.batch.end();
+                // Обновляем и рисуем персонажа
+
+                uiStage.act(delta);
+                uiStage.draw();
             }
 
-            // Обновляем и рисуем персонажа
-            //player.update(delta, moveX, moveY);
-            player.render(game.batch);
-
-            joystick.update(Gdx.input.getX(), Gdx.input.getY());
-
-            Vector2 direction = joystick.getDirection();
-            player.move(direction.x * player.getSpeed() * delta, direction.y * player.getSpeed() * delta);
-            stage.draw();
-            game.batch.end();
-
-            shapeRenderer.setProjectionMatrix(camera.combined);
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            joystick.draw(shapeRenderer);
-            shapeRenderer.end();
-        }
 
     @Override
     public void dispose() {
         stage.dispose();
-        playButtonImage.dispose();
+        stage.dispose();
+        uiStage.dispose();
+        upTexture.dispose();
+        downTexture.dispose();
+        leftTexture.dispose();
+        rightTexture.dispose();
         roomBackground.dispose();
         hallWayBackground.dispose();
     }
 
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        System.out.println("Трогаешь "+button);
-        Vector3 touchPos = new Vector3(screenX, screenY, 0);
 
-        // unproject преобразует экранные координаты (screenX, screenY) в мировые координаты камеры
-        camera.unproject(touchPos);
-        joystick.touchDown(touchPos.x, touchPos.y);
-
-        return true;
+    private Texture createCircleTexture(int diameter, Color color, float alpha) {
+        Pixmap pixmap = new Pixmap(diameter, diameter, Pixmap.Format.RGBA8888);
+        pixmap.setBlending(Pixmap.Blending.None);
+        pixmap.setColor(color.r, color.g, color.b, alpha);
+        pixmap.fillCircle(diameter / 2, diameter / 2, diameter / 2);
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose(); // Освобождаем ресурсы Pixmap
+        return texture;
     }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        joystick.touchUp();
-
-        return true;
-    }
-
-
 
     private void drawTiledTexture(SpriteBatch batch, Texture texture, float x, float y, float width, float height) {
         // Рассчитываем масштабирование текстуры для повторения по ширине и высоте
@@ -201,6 +267,19 @@ public class GameScreen implements Screen , InputProcessor {
     public void hide() {
 
     }
+
+
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        return true;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        return true;
+    }
+
 
     @Override
     public boolean keyDown(int keycode) {

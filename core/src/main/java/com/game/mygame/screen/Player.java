@@ -2,28 +2,46 @@ package com.game.mygame.screen;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
 
 public class Player {
     Texture texture;
     private float x,y;
-    private float speed;
-    private float width=64,height=64;
-    public Player(Texture texture ,float x,float y,float speed){
+    public float speed;
+    private float width=75,height=75;
+    private Body body;
+
+    public Player(World world, Texture texture , float x, float y, float speed){
         this.texture=texture;
-        this.x=x;
-        this.y=y;
-        this.speed=speed;
-    }
-    public void update(float delta) {
-        // Обновляем позицию персонажа на основе ввода
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.position.set(x, y);
+        bodyDef.type = BodyDef.BodyType.DynamicBody; // Динамическое тело
+        body = world.createBody(bodyDef);
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(width / 2, height / 2);
+      // Половина ширины и высоты игрока
 
-    }
+        // Определяем фиксацию
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.density = 1.0f; // Плотность
+        fixtureDef.friction = 0.5f; // Трение
+        fixtureDef.restitution = 0.2f; // Упругость
 
+        body.createFixture(fixtureDef);
+        shape.dispose();
+    }
     public void render(SpriteBatch batch) {
         // Отрисовываем персонажа
-        batch.draw(texture, x, y,75,75);
+        batch.draw(texture, x, y,width,height);
     }
-
+    public Body getBody() {
+        return body;
+    }
     public void move(float deltaX, float deltaY) {
         x += deltaX;
         y += deltaY;
