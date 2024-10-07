@@ -1,4 +1,4 @@
-package common;
+package models;
 
 public class Point {
     public int x,y,cost;

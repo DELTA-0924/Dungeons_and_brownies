@@ -1,4 +1,4 @@
-package common;
+package models;
 
 public class Room {
     public int x;

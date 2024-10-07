@@ -1,4 +1,4 @@
-package com.game.mygame.screen;
+package models;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -13,34 +13,36 @@ public class Player {
     private float x,y;
     public float speed;
     private float width=75,height=75;
-    private Body body;
+    public Body body;
 
     public Player(World world, Texture texture , float x, float y, float speed){
         this.texture=texture;
         this.x=x;
         this.y=y;
         this.speed=speed;
-//        BodyDef bodyDef = new BodyDef();
-//        bodyDef.position.set(x, y);
-//        bodyDef.type = BodyDef.BodyType.DynamicBody; // Динамическое тело
-//        body = world.createBody(bodyDef);
-//        PolygonShape shape = new PolygonShape();
-//        shape.setAsBox(width / 2, height / 2);
-//      // Половина ширины и высоты игрока
-//
-//        // Определяем фиксацию
-//        FixtureDef fixtureDef = new FixtureDef();
-//        fixtureDef.shape = shape;
-//        fixtureDef.density = 1.0f; // Плотность
-//        fixtureDef.friction = 0.5f; // Трение
-//        fixtureDef.restitution = 0.2f; // Упругость
-//
-//        body.createFixture(fixtureDef);
-//        shape.dispose();
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.position.set(x, y);
+        bodyDef.type = BodyDef.BodyType.DynamicBody; // Динамическое тело
+        body = world.createBody(bodyDef);
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(width / 2, height / 2);
+      // Половина ширины и высоты игрока
+        body.setBullet(true);
+        // Определяем фиксацию
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.density = 1.0f; // Плотность
+        fixtureDef.friction = 0.5f; // Трение
+        fixtureDef.restitution = 0.2f; // Упругость
+
+        body.createFixture(fixtureDef);
+        shape.dispose();
+
+        body.setUserData("Player");
     }
     public void render(SpriteBatch batch) {
         // Отрисовываем персонажа
-        batch.draw(texture, x, y,width,height);
+        batch.draw(texture, body.getPosition().x, body.getPosition().y,width,height);
     }
     public Body getBody() {
         return body;
