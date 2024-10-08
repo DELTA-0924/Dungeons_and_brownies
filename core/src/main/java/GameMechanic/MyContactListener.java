@@ -11,17 +11,17 @@ public class MyContactListener implements ContactListener {
     public void beginContact(Contact contact) {
         // Код, который будет выполняться при начале столкновения
         // Например, можно узнать, какие объекты столкнулись
-        System.out.println("Collision started between: " +
-            contact.getFixtureA().getBody().getUserData() + " and " +
-            contact.getFixtureB().getBody().getUserData());
+//        System.out.println("Collision started between: " +
+//            contact.getFixtureA().getBody().getUserData() + " and " +
+//            contact.getFixtureB().getBody().getUserData());
     }
 
     @Override
     public void endContact(Contact contact) {
         // Код, который будет выполняться при окончании столкновения
-        System.out.println("Collision ended between: " +
-            contact.getFixtureA().getBody().getUserData() + " and " +
-            contact.getFixtureB().getBody().getUserData());
+//        System.out.println("Collision ended between: " +
+//            contact.getFixtureA().getBody().getUserData() + " and " +
+//            contact.getFixtureB().getBody().getUserData());
     }
 
     @Override

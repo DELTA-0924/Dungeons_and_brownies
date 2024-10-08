@@ -21,7 +21,7 @@ public class Player {
         this.y=y;
         this.speed=speed;
         BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(x, y);
+        bodyDef.position.set((this.x+width)/2, (this.y+height)/2);
         bodyDef.type = BodyDef.BodyType.DynamicBody; // Динамическое тело
         body = world.createBody(bodyDef);
         PolygonShape shape = new PolygonShape();
@@ -42,7 +42,7 @@ public class Player {
     }
     public void render(SpriteBatch batch) {
         // Отрисовываем персонажа
-        batch.draw(texture, body.getPosition().x, body.getPosition().y,width,height);
+        batch.draw(texture, body.getPosition().x-width/2, body.getPosition().y-height/2,width,height);
     }
     public Body getBody() {
         return body;

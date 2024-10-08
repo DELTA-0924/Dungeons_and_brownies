@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.Rectangle;
 
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -57,6 +58,7 @@ public class GameScreen implements Screen , InputProcessor {
     int height=1080 ,cameraHeight=480;
     float buttonWidth = 150;  // 50 пикселей
     float buttonHeight = 150; // 50 пикселей
+    Box2DDebugRenderer debugRenderer;
     Map map;
     public GameScreen(final Roque game){
         this.game=game;
@@ -149,23 +151,18 @@ public class GameScreen implements Screen , InputProcessor {
         map=new Map(world);
         for (Leaf currentLeaf : leaf.getLeafs()) {
             // Отрисовка комнат
-            map.createRoom( currentLeaf.room.x, currentLeaf.room.y, currentLeaf.room.width, currentLeaf.room.height);
+            map.createRoomWithCorridors( currentLeaf.room.x, currentLeaf.room.y, currentLeaf.room.width, currentLeaf.room.height,currentLeaf.halls);
             // Отрисовка коридоров
 //            for (Rectangle currentHall : currentLeaf.halls) {
 //                map.createCorridor( currentHall.x, currentHall.y, currentHall.width, currentHall.height);
 //            }
         }
 
-
-
-//        uiStage.addActor(playButton);
-//        uiStage.addActor(upButton);
-//        uiStage.addActor(downButton);
-//        uiStage.addActor(leftButton);
-//        uiStage.addActor(rightButton);
         uiStage.addActor(touchpad);
         uiStage.addActor(playButton);
         Gdx.input.setInputProcessor(uiStage);
+         debugRenderer = new Box2DDebugRenderer();
+
     }
         @Override
         public void show() {
@@ -177,11 +174,8 @@ public class GameScreen implements Screen , InputProcessor {
                     playerPosX=currnetLeaf.room.y+(currnetLeaf.room.height/2);
                     break;
                 }
-
             }
             player=new Player(world,character,playerPosY,playerPosX,500);
-
-
             roomBackground=new Texture("images/texture/room.jpg");
             roomBackground.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
             hallWayBackground=new Texture("images/texture/room.jpg");
@@ -203,8 +197,11 @@ public class GameScreen implements Screen , InputProcessor {
 
                     game.batch.draw(roomBackground, currentLeaf.room.x, currentLeaf.room.y, currentLeaf.room.width, currentLeaf.room.height);
                     // Отрисовка коридоров
-                    for (Rectangle currentHall : currentLeaf.halls) {
 
+                }
+            // Отрисовка коридоров
+                for (Leaf currentLeaf : leaf.getLeafs()) {
+                    for (Rectangle currentHall : currentLeaf.halls) {
                         drawTiledTexture(game.batch, hallWayBackground, currentHall.x, currentHall.y, currentHall.width, currentHall.height);
                     }
                 }
@@ -219,7 +216,8 @@ public class GameScreen implements Screen , InputProcessor {
 
                 uiStage.act(delta);
                 uiStage.draw();
-            }
+                debugRenderer.render(world, camera.combined);
+        }
 
 
     @Override
