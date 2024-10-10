@@ -125,8 +125,8 @@ public class Leaf {
 
     public void createHall(Rectangle l, Rectangle r) {
         // Увеличиваем ширину коридоров
-        int horizontalCorridorWidth = 60;  // Увеличиваем ширину горизонтальных коридоров
-        int verticalCorridorWidth = 60;    // Увеличиваем ширину вертикальных коридоров
+        int horizontalCorridorWidth = 75;  // Увеличиваем ширину горизонтальных коридоров
+        int verticalCorridorWidth = 75;    // Увеличиваем ширину вертикальных коридоров
 
         halls = new Vector<>();
         if(l.height==0 ||r.height==0 || l.x==0 || r.x==0 || l.width==0 || r.width==0)
@@ -135,6 +135,7 @@ public class Leaf {
         Vector2 point1=new Vector2(0,0);
         Vector2 point2=new Vector2(0,0);
         try {
+
              point1 = new Vector2(
                 randomNumber((int) l.x + 60, (int) (l.x + l.width) - 60),
                 randomNumber((int) l.y + 60, (int) (l.y + l.height) - 60)
@@ -144,6 +145,8 @@ public class Leaf {
                 randomNumber((int) r.y + 60, (int) (r.y + r.height) - 60)
             );
 
+
+
         }catch (IllegalArgumentException e){
 //            System.out.println("rRoom x "+r.x + "width"+ r.width);
 //            System.out.println("rRoom x "+r.y+" height"+ r.height);
@@ -151,9 +154,11 @@ public class Leaf {
 //            System.out.println("lRoom x "+l.x + " width"+ l.width);
 //            System.out.println("lRoom x "+l.y+" height"+ l.height);
         }
+        point1.set(point1.x-60,point1.y-60);
+        point2.set(point2.x-60,point2.y-60);
         // Вычисляем разницы между точками по X и Y
-        float w = point2.x - point1.x;
-        float h = point2.y - point1.y;
+        float w = (point2.x) -(point1.x);
+        float h =( point2.y)-( point1.y);
         if (w < 0)
         {
             if (h < 0)

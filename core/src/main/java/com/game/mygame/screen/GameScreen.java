@@ -29,11 +29,13 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import com.badlogic.gdx.physics.box2d.World;
 
+import GameMechanic.GameLogic;
 import GameMechanic.MyContactListener;
 import models.Player;
 import map.Leaf;
 import map.LeafGenerator;
 import map.Map;
+import models.PlayerUI;
 
 public class GameScreen implements Screen , InputProcessor {
 
@@ -46,8 +48,8 @@ public class GameScreen implements Screen , InputProcessor {
     final Roque game;
     Stage stage;
     Stage uiStage;
-    private Button upButton, downButton, leftButton, rightButton, playButton;
-    private Texture upTexture, downTexture, leftTexture, rightTexture,playTexture;
+    private Button  playButton;
+    private Texture  playTexture;
     boolean mapGenereted=false;
     Texture roomBackground;
     Texture hallWayBackground;
@@ -56,15 +58,21 @@ public class GameScreen implements Screen , InputProcessor {
     Texture character;
     int width=1920,cameraWidth=800;
     int height=1080 ,cameraHeight=480;
-    float buttonWidth = 150;  // 50 пикселей
-    float buttonHeight = 150; // 50 пикселей
+    GameLogic gameLogic;
+    PlayerUI playerUI;
     Box2DDebugRenderer debugRenderer;
     Map map;
+    Texture outDoorBackground;
     public GameScreen(final Roque game){
         this.game=game;
         int maxRooms=20;
+
         world = new World(new Vector2(0, -9.8f), true);
         world.setContactListener(new MyContactListener());
+        debugRenderer = new Box2DDebugRenderer();
+
+
+
         camera=new OrthographicCamera();
         camera.setToOrtho(false,cameraWidth,cameraHeight);
 
@@ -121,48 +129,19 @@ public class GameScreen implements Screen , InputProcessor {
 
 */
 
-        touchBackground = createCircleTexture(400, Color.GRAY, 0.5f); // Полупрозрачный серый фон
-        touchKnob = createCircleTexture(80, Color.WHITE, 1f);         // Непрозрачная белая ручка
-
-        // Создаем стиль для джойстика
-        touchpadStyle = new Touchpad.TouchpadStyle();
-        touchpadStyle.background = new TextureRegionDrawable(new TextureRegion(touchBackground));
-        touchpadStyle.knob = new TextureRegionDrawable(new TextureRegion(touchKnob));
-
-        // Создаем Touchpad
-        touchpad = new Touchpad(10, touchpadStyle); // Параметр deadzone
-        touchpad.setBounds(300, 200, 200, 200);
         leaf=new LeafGenerator();
-
-
-        playTexture=new Texture("images/screen/playbutton.png");
-        playButton=new Button(new TextureRegionDrawable(playTexture));
-        playButton.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    game.setScreen(new MainMenuScreen(game));
-                }
-            });
-        playButton.setSize(64,64);
-        playButton.setPosition(width-64,height-64);
-
         leaf.generateLeaves(1500,1200,maxRooms);
 
-        map=new Map(world);
-        for (Leaf currentLeaf : leaf.getLeafs()) {
-            // Отрисовка комнат
-            map.createRoomWithCorridors( currentLeaf.room.x, currentLeaf.room.y, currentLeaf.room.width, currentLeaf.room.height,currentLeaf.halls);
-            // Отрисовка коридоров
-//            for (Rectangle currentHall : currentLeaf.halls) {
-//                map.createCorridor( currentHall.x, currentHall.y, currentHall.width, currentHall.height);
-//            }
-        }
+        map=new Map(world,game);
 
-        uiStage.addActor(touchpad);
-        uiStage.addActor(playButton);
+//
+//        for (Leaf currentLeaf : leaf.getLeafs()) {
+//            map.createRoom( currentLeaf.room.x, currentLeaf.room.y,
+//                currentLeaf.room.width, currentLeaf.room.height,currentLeaf.halls);
+//        }
+
+
         Gdx.input.setInputProcessor(uiStage);
-         debugRenderer = new Box2DDebugRenderer();
-
     }
         @Override
         public void show() {
@@ -176,10 +155,40 @@ public class GameScreen implements Screen , InputProcessor {
                 }
             }
             player=new Player(world,character,playerPosY,playerPosX,500);
+            gameLogic=new GameLogic(player,leaf.getLeafs());
+            playerUI=new PlayerUI(uiStage,player);
             roomBackground=new Texture("images/texture/room.jpg");
+            outDoorBackground=new Texture ("images/texture/greenground2.png");
             roomBackground.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
             hallWayBackground=new Texture("images/texture/room.jpg");
             hallWayBackground.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+
+
+            touchBackground = new Texture(Gdx.files.internal("images/texture/touchBackground.png")); // Замените на путь к вашей текстуре
+            touchKnob = new Texture(Gdx.files.internal("images/texture/touchknob.png")); // Замените на путь к вашей текстуре
+
+            // Создаем стиль для джойстика, используя загруженные текстуры
+            touchpadStyle = new Touchpad.TouchpadStyle();
+            touchpadStyle.background = new TextureRegionDrawable(new TextureRegion(touchBackground));
+            touchpadStyle.knob = new TextureRegionDrawable(new TextureRegion(touchKnob));
+
+            // Создаем Touchpad с настроенным стилем
+            touchpad = new Touchpad(10, touchpadStyle); // Параметр deadzone (мертвая зона)
+            touchpad.setBounds(150, 150, 400, 400);
+
+            playTexture=new Texture("images/screen/playbutton.png");
+            playButton=new Button(new TextureRegionDrawable(playTexture));
+            playButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    game.setScreen(new MainMenuScreen(game));
+                }
+            });
+            playButton.setSize(64,64);
+            playButton.setPosition(width-64,height-64);
+
+            uiStage.addActor(touchpad);
+            uiStage.addActor(playButton);
         }
         @Override
         public void render(float delta) {
@@ -191,47 +200,39 @@ public class GameScreen implements Screen , InputProcessor {
             uiStage.getViewport().apply();
             game.batch.setProjectionMatrix(camera.combined);
             game.batch.begin();
-                // Рисуем карту с использованием SpriteBatch
-                for (Leaf currentLeaf : leaf.getLeafs()) {
-                    // Отрисовка комнат
+            game.batch.draw(outDoorBackground, leaf.getLeafs().get(0).x,  leaf.getLeafs().get(0).y,  leaf.getLeafs().get(0).width,  leaf.getLeafs().get(0).height);
+            for (Leaf currentLeaf : leaf.getLeafs())
+                for (Rectangle currentHall : currentLeaf.halls)
+                    drawTiledTexture(game.batch, hallWayBackground, currentHall.x, currentHall.y, currentHall.width, currentHall.height);
 
-                    game.batch.draw(roomBackground, currentLeaf.room.x, currentLeaf.room.y, currentLeaf.room.width, currentLeaf.room.height);
-                    // Отрисовка коридоров
+            for (Leaf currentLeaf : leaf.getLeafs())
+                game.batch.draw(roomBackground, currentLeaf.room.x, currentLeaf.room.y, currentLeaf.room.width, currentLeaf.room.height);
 
-                }
-            // Отрисовка коридоров
-                for (Leaf currentLeaf : leaf.getLeafs()) {
-                    for (Rectangle currentHall : currentLeaf.halls) {
-                        drawTiledTexture(game.batch, hallWayBackground, currentHall.x, currentHall.y, currentHall.width, currentHall.height);
-                    }
-                }
-                float moveX = touchpad.getKnobPercentX();
-                float moveY = touchpad.getKnobPercentY();
 
-            player.body.setLinearVelocity(moveX * player.speed, moveY * player.speed);
+            float moveX = touchpad.getKnobPercentX();
+            float moveY = touchpad.getKnobPercentY();
+
+//            player.body.setLinearVelocity(moveX * player.speed, moveY * player.speed);
+            gameLogic.update(delta,moveX,moveY);
 
             player.render(game.batch);
                 game.batch.end();
                 // Обновляем и рисуем персонажа
-
+                playerUI.update();
                 uiStage.act(delta);
                 uiStage.draw();
                 debugRenderer.render(world, camera.combined);
         }
-
-
     @Override
     public void dispose() {
         stage.dispose();
         stage.dispose();
         uiStage.dispose();
-        upTexture.dispose();
-        downTexture.dispose();
-        leftTexture.dispose();
-        rightTexture.dispose();
         roomBackground.dispose();
         hallWayBackground.dispose();
         world.dispose();
+        player.dispose();
+        playerUI.dispose();
     }
 
 

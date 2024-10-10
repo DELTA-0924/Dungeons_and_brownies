@@ -1,4 +1,6 @@
 package map;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -7,138 +9,85 @@ import com.badlogic.gdx.physics.box2d.ChainShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.game.mygame.screen.Roque;
+import com.game.mygame.screen.common.CategoryBits;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 public class Map {
     private World world;
-
-    public Map(World world) {
+    Texture wallTexture;
+    Roque game;
+    Vector<Rectangle> halls;
+    public Map(World world,Roque game) {
+        this.game=game;
+        wallTexture = new Texture("images/texture/stoneground.png");
         this.world = world;
     }
 
-    public void createRoomWithCorridors(float x, float y, float width, float height, List<Rectangle> corridors) {
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(x + width / 2, y + height / 2);
-        bodyDef.type = BodyDef.BodyType.StaticBody;
-        Body roomBody = world.createBody(bodyDef);
 
-        List<Vector2> verticesList = new ArrayList<>();
+    public void createRoom(float x, float y, float width, float height,Vector<Rectangle> halls) {
 
-        // Добавляем углы комнаты
-        verticesList.add(new Vector2(-width / 2, -height / 2));  // Левый нижний
-        verticesList.add(new Vector2(width / 2, -height / 2));   // Правый нижний
-        verticesList.add(new Vector2(width / 2, height / 2));    // Правый верхний
-        verticesList.add(new Vector2(-width / 2, height / 2));   // Левый верхний
-        verticesList.add(verticesList.get(0)); // Замыкаем цепочку
+        this.halls=halls;
 
-        // Убираем сегменты стен, где находятся коридоры
-        for (Rectangle corridor : corridors) {
-            // Получаем координаты коридора
-            float corridorLeft = corridor.x;
-            float corridorRight = corridor.x + corridor.width;
-            float corridorBottom = corridor.y;
-            float corridorTop = corridor.y + corridor.height;
-
-            // Удаляем нижнюю стену, если коридор пересекает ее
-            if (corridorTop > -height / 2 && corridorBottom < -height / 2) {
-                verticesList.remove(0); // Удаляем левый нижний угол
-                verticesList.remove(1); // Удаляем правый нижний угол
-                verticesList.add(0, new Vector2(corridorRight - width / 2, -height / 2)); // Новый нижний правый угол
-                verticesList.add(1, new Vector2(corridorLeft - width / 2, -height / 2));  // Новый нижний левый угол
-            }
-
-            // Удаляем верхнюю стену, если коридор пересекает ее
-            if (corridorBottom < height / 2 && corridorTop > height / 2) {
-                verticesList.remove(2); // Удаляем левый верхний угол
-                verticesList.remove(3); // Удаляем правый верхний угол
-                verticesList.add(2,new Vector2(corridorLeft - width / 2, height / 2)); // Новый верхний левый угол
-                verticesList.add(3,new Vector2(corridorRight - width / 2, height / 2)); // Новый верхний правый угол
-            }
-
-            // Удаляем левую стену, если коридор пересекает ее
-            if (corridorRight > -width / 2 && corridorLeft < -width / 2) {
-                verticesList.remove(0); // Удаляем левый нижний угол
-                verticesList.remove(3); // Удаляем левый верхний угол
-                verticesList.add(0, new Vector2(-width / 2, corridorTop - height / 2)); // Новый левый верхний угол
-                verticesList.add(3, new Vector2(-width / 2, corridorBottom - height / 2)); // Новый левый нижний угол
-            }
-
-            // Удаляем правую стену, если коридор пересекает ее
-            if (corridorLeft < width / 2 && corridorRight > width / 2) {
-                verticesList.remove(1); // Удаляем правый нижний угол
-                verticesList.remove(2); // Удаляем правый верхний угол
-                verticesList.add(1,new Vector2(width / 2, corridorBottom - height / 2)); // Новый правый нижний угол
-                verticesList.add(2,new Vector2(width / 2, corridorTop - height / 2)); // Новый правый верхний угол
-            }
-        }
-
-        // Преобразуем список вершин в массив
-        Vector2[] vertices = new Vector2[verticesList.size()];
-        verticesList.toArray(vertices);
-
-        // Создаем форму комнаты
-        ChainShape roomShape = new ChainShape();
-        roomShape.createChain(vertices);
-
-        // Определяем фиксацию
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.shape = roomShape;
-        roomBody.createFixture(fixtureDef);
-
-        roomShape.dispose(); // Освобождаем форму после создания фиксации
-        roomBody.setUserData("Room");
-    }
-
-
-
-
-    public void createRoom(float x, float y, float width, float height) {
-        // Определяем тело
-        // Создаем 4 стены
         createWall(x, y, width, 1f); // Нижняя стена
         createWall(x, y + height, width, 1f); // Верхняя стена
         createWall(x, y, 1f, height); // Левая стена
         createWall(x + width, y, 1f, height); // Правая стена
+        for (Rectangle hole : halls) {
+//            createWallCorridors(hole.x,hole.width,hole.y,1f);
+//            createWallCorridors(hole.x,y+hole.height,hole.width,1f);
+//            createWallCorridors(hole.x,hole.y,1f,hole.height);
+//            createWallCorridors(hole.x+hole.width,hole.y,1f,hole.height);
+
+            createWallCorridors(hole.x,hole.y,hole.width,hole.height);
+
+        }
+    }
+    public void createWallCorridors(float x,float y,float width,float height){
+        // Создаём дырки в стене
+
+            BodyDef holeBodyDef = new BodyDef();
+            holeBodyDef.position.set( x+width  / 2, y + height / 2);
+            Body holeBody = world.createBody(holeBodyDef);
+
+            // Создаём форму дырки
+            PolygonShape holeShape = new PolygonShape();
+            holeShape.setAsBox(width / 2, height / 2);
+
+            FixtureDef holeFixtureDef = new FixtureDef();
+            holeFixtureDef.shape = holeShape;
+            holeFixtureDef.isSensor = true; // Дырка является сенсором
+            holeFixtureDef.filter.categoryBits = CategoryBits.HOLE; // Категория для дырок
+            holeFixtureDef.filter.maskBits = CategoryBits.WALL | CategoryBits.PLAYER;
+            holeBody.createFixture(holeFixtureDef);
+            // Освобождаем память
+            holeShape.dispose();
     }
     public void createWall(float x, float y, float width, float height) {
-        // Определяем тело
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(x + width / 2, y + height / 2); // Позиционируем по центру стены
-        bodyDef.type = BodyDef.BodyType.StaticBody; // Статическое тело
-        Body wallBody = world.createBody(bodyDef);
+        // Создаём основное тело стены
+        if(x==0&& y==0 && width==0 && height==0)
+            return;
+        System.out.println("x = "+x+" y="+y+" width= "+width+" height +"+height);
+        BodyDef wallBodyDef = new BodyDef();
+        wallBodyDef.position.set(x + width / 2, y + height / 2);
+        Body wallBody = world.createBody(wallBodyDef);
 
-        // Определяем форму тела
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox(width / 2, height / 2); // Половина ширины и высоты
+        // Создаём форму стены
+        PolygonShape wallShape = new PolygonShape();
+        wallShape.setAsBox(width / 2, height / 2);
 
-        // Определяем фиксацию
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.shape = shape;
+        FixtureDef wallFixtureDef = new FixtureDef();
+        wallFixtureDef.shape = wallShape;
+        wallFixtureDef.isSensor = false; // Обычная стена
+        wallFixtureDef.filter.categoryBits = CategoryBits.WALL;
+        wallBody.createFixture(wallFixtureDef);
 
-        wallBody.createFixture(fixtureDef);
-        shape.dispose(); // Освобождаем форму после создания фиксации
-
-        wallBody.setUserData("Wall");
-    }
-    public void createCorridor(float x, float y, float width, float height) {
-        // Аналогично создаем коридор
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(x + width / 2, y + height / 2);
-        bodyDef.type = BodyDef.BodyType.StaticBody; // Статическое тело
-        Body corridorBody = world.createBody(bodyDef);
-
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox(width / 2, height / 2); // Половина ширины и высоты
-
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.shape = shape;
-
-        corridorBody.createFixture(fixtureDef);
-        shape.dispose(); // Освобождаем форму после создания фиксации
-        corridorBody.setUserData("Corridor");
-
+        // Освобождаем память
+        wallShape.dispose();
 
     }
+
 }
