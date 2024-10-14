@@ -201,8 +201,8 @@ public class GameScreen implements Screen , InputProcessor {
             attackButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    if (contactListener.isPlayerTouchingEnemy) {
-                        enemy.takeDamage(player.getAttack()); // Наносим урон врагу
+                    if (contactListener.isPlayerTouchingEnemy && contactListener.currentEnemy != null) {
+                        contactListener.currentEnemy.takeDamage(player.getAttack()); // Наносим урон текущему врагу
                     }
                 }
             });

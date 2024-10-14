@@ -16,7 +16,7 @@ import models.Player;
 
 public class MyContactListener implements ContactListener {
     public boolean isPlayerTouchingEnemy = false;
-    public Enemy enemy;
+    public Enemy currentEnemy;
     @Override
     public void beginContact(Contact contact) {
         Fixture fixtureA = contact.getFixtureA();
@@ -30,21 +30,21 @@ public class MyContactListener implements ContactListener {
 
         // Проверка, является ли один объект игроком, а другой врагом
         if (userDataA instanceof Player && userDataB instanceof Enemy) {
-            System.out.println("Player contacted with Enemy");
-            Enemy enemy = (Enemy) userDataB;
-            enemy.attackPlayer();
+
+            currentEnemy = (Enemy) userDataB;
+            currentEnemy.attackPlayer();
             isPlayerTouchingEnemy = true;
         } else if (userDataA instanceof Enemy && userDataB instanceof Player) {
-            System.out.println("Enemy contacted with Player");
-            Enemy enemy = (Enemy) userDataA;
-            enemy.attackPlayer();
+
+            currentEnemy = (Enemy) userDataA;
+            currentEnemy.attackPlayer();
             isPlayerTouchingEnemy = true;
         }
     }
 
     @Override
     public void endContact(Contact contact) {
-
+            currentEnemy=null;
     }
 
     @Override

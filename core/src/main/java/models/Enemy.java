@@ -85,7 +85,7 @@ public class Enemy {
         );
         // Если враг еще не на исходной позиции, движемся к ней
         if (direction.len() >1) {
-            System.out.println("return diraction "+direction.len());
+
             direction.nor(); // Нормализуем направление
             body.setLinearVelocity(direction.scl(speed)); // Двигаем врага к точке спавна
         } else {
