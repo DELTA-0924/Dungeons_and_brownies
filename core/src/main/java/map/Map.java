@@ -18,15 +18,12 @@ import java.util.Vector;
 
 public class Map {
     private World world;
-    Texture wallTexture;
     Roque game;
     Vector<Rectangle> halls;
     public Map(World world,Roque game) {
         this.game=game;
-        wallTexture = new Texture("images/texture/stoneground.png");
         this.world = world;
     }
-
 
     public void createRoom(float x, float y, float width, float height,Vector<Rectangle> halls) {
 
@@ -42,7 +39,7 @@ public class Map {
 //            createWallCorridors(hole.x,hole.y,1f,hole.height);
 //            createWallCorridors(hole.x+hole.width,hole.y,1f,hole.height);
 
-            createWallCorridors(hole.x,hole.y,hole.width,hole.height);
+//            createWallCorridors(hole.x,hole.y,hole.width,hole.height);
 
         }
     }
@@ -70,7 +67,7 @@ public class Map {
         // Создаём основное тело стены
         if(x==0&& y==0 && width==0 && height==0)
             return;
-        System.out.println("x = "+x+" y="+y+" width= "+width+" height +"+height);
+
         BodyDef wallBodyDef = new BodyDef();
         wallBodyDef.position.set(x + width / 2, y + height / 2);
         Body wallBody = world.createBody(wallBodyDef);

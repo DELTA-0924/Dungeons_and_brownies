@@ -31,6 +31,7 @@ import com.badlogic.gdx.physics.box2d.World;
 
 import GameMechanic.GameLogic;
 import GameMechanic.MyContactListener;
+import models.Enemy;
 import models.Player;
 import map.Leaf;
 import map.LeafGenerator;
@@ -48,8 +49,8 @@ public class GameScreen implements Screen , InputProcessor {
     final Roque game;
     Stage stage;
     Stage uiStage;
-    private Button  playButton;
-    private Texture  playTexture;
+    private Button  playButton,attackButton;
+    private Texture  playTexture,attackButtonTexture;
     boolean mapGenereted=false;
     Texture roomBackground;
     Texture hallWayBackground;
@@ -63,12 +64,16 @@ public class GameScreen implements Screen , InputProcessor {
     Box2DDebugRenderer debugRenderer;
     Map map;
     Texture outDoorBackground;
+    Enemy enemy;
+    GameOverScreen gameover;
+    private MyContactListener contactListener;
     public GameScreen(final Roque game){
         this.game=game;
         int maxRooms=20;
 
         world = new World(new Vector2(0, -9.8f), true);
-        world.setContactListener(new MyContactListener());
+        contactListener=new MyContactListener();
+        world.setContactListener(contactListener);
         debugRenderer = new Box2DDebugRenderer();
 
 
@@ -133,12 +138,12 @@ public class GameScreen implements Screen , InputProcessor {
         leaf.generateLeaves(1500,1200,maxRooms);
 
         map=new Map(world,game);
-
-//
 //        for (Leaf currentLeaf : leaf.getLeafs()) {
 //            map.createRoom( currentLeaf.room.x, currentLeaf.room.y,
+//
 //                currentLeaf.room.width, currentLeaf.room.height,currentLeaf.halls);
 //        }
+
 
 
         Gdx.input.setInputProcessor(uiStage);
@@ -154,9 +159,21 @@ public class GameScreen implements Screen , InputProcessor {
                     break;
                 }
             }
-            player=new Player(world,character,playerPosY,playerPosX,500);
+            player=new Player(world,character,playerPosY,playerPosX);
+            gameover=new GameOverScreen(player,game,uiStage);
+            character=new Texture("images/texture/character/knight-type-1.png");
+            Leaf currentLeaf;
+            for (int i = leaf.getLeafs().size() - 1; i >= 0; i--) {
+                 currentLeaf = leaf.getLeafs().get(i);
+                if((currentLeaf.room.x+ currentLeaf.room.width)!=0 && ((currentLeaf.room.y+ currentLeaf.room.height)!=0)){
+                    enemy=new Enemy(world,player,10,5,500,10,currentLeaf.room,character);
+                    break;
+                }
+            }
             gameLogic=new GameLogic(player,leaf.getLeafs());
             playerUI=new PlayerUI(uiStage,player);
+
+
             roomBackground=new Texture("images/texture/room.jpg");
             outDoorBackground=new Texture ("images/texture/greenground2.png");
             roomBackground.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
@@ -171,10 +188,26 @@ public class GameScreen implements Screen , InputProcessor {
             touchpadStyle = new Touchpad.TouchpadStyle();
             touchpadStyle.background = new TextureRegionDrawable(new TextureRegion(touchBackground));
             touchpadStyle.knob = new TextureRegionDrawable(new TextureRegion(touchKnob));
-
+            float scaleFactor = 0.7f; // Масштаб уменьшаем на 30%
+            touchpadStyle.knob.setMinWidth(touchKnob.getWidth() * scaleFactor);
+            touchpadStyle.knob.setMinHeight(touchKnob.getHeight() * scaleFactor);
             // Создаем Touchpad с настроенным стилем
             touchpad = new Touchpad(10, touchpadStyle); // Параметр deadzone (мертвая зона)
             touchpad.setBounds(150, 150, 400, 400);
+
+            attackButtonTexture=new Texture("images/screen/attackButton.png");
+            attackButton=new Button(new TextureRegionDrawable(attackButtonTexture));
+
+            attackButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    if (contactListener.isPlayerTouchingEnemy) {
+                        enemy.takeDamage(player.getAttack()); // Наносим урон врагу
+                    }
+                }
+            });
+            attackButton.setSize(128,128);
+            attackButton.setPosition(width-300,200);
 
             playTexture=new Texture("images/screen/playbutton.png");
             playButton=new Button(new TextureRegionDrawable(playTexture));
@@ -189,6 +222,8 @@ public class GameScreen implements Screen , InputProcessor {
 
             uiStage.addActor(touchpad);
             uiStage.addActor(playButton);
+            uiStage.addActor(attackButton);
+
         }
         @Override
         public void render(float delta) {
@@ -199,8 +234,11 @@ public class GameScreen implements Screen , InputProcessor {
             camera.update();
             uiStage.getViewport().apply();
             game.batch.setProjectionMatrix(camera.combined);
+
             game.batch.begin();
+
             game.batch.draw(outDoorBackground, leaf.getLeafs().get(0).x,  leaf.getLeafs().get(0).y,  leaf.getLeafs().get(0).width,  leaf.getLeafs().get(0).height);
+
             for (Leaf currentLeaf : leaf.getLeafs())
                 for (Rectangle currentHall : currentLeaf.halls)
                     drawTiledTexture(game.batch, hallWayBackground, currentHall.x, currentHall.y, currentHall.width, currentHall.height);
@@ -208,20 +246,27 @@ public class GameScreen implements Screen , InputProcessor {
             for (Leaf currentLeaf : leaf.getLeafs())
                 game.batch.draw(roomBackground, currentLeaf.room.x, currentLeaf.room.y, currentLeaf.room.width, currentLeaf.room.height);
 
+          float moveX = touchpad.getKnobPercentX();
+          float moveY = touchpad.getKnobPercentY();
+          gameLogic.update(delta,moveX,moveY);
 
-            float moveX = touchpad.getKnobPercentX();
-            float moveY = touchpad.getKnobPercentY();
+          player.render(game.batch);
+          enemy.render(game.batch);
+          game.batch.end();
 
-//            player.body.setLinearVelocity(moveX * player.speed, moveY * player.speed);
-            gameLogic.update(delta,moveX,moveY);
-
-            player.render(game.batch);
-                game.batch.end();
-                // Обновляем и рисуем персонажа
-                playerUI.update();
-                uiStage.act(delta);
-                uiStage.draw();
-                debugRenderer.render(world, camera.combined);
+          playerUI.update();
+          enemy.update();
+          uiStage.act(delta);
+          uiStage.draw();
+            attackButton.setVisible(contactListener.isPlayerTouchingEnemy);
+          debugRenderer.render(world, camera.combined);
+            if(player.dead) {
+                attackButton.setVisible(false);
+                playerUI.uiTable.setVisible(false);
+                playButton.setVisible(false);
+                touchpad.setVisible(false);
+                gameover.render(delta);
+            }
         }
     @Override
     public void dispose() {
@@ -233,19 +278,8 @@ public class GameScreen implements Screen , InputProcessor {
         world.dispose();
         player.dispose();
         playerUI.dispose();
+        gameover.dispose();
     }
-
-
-    private Texture createCircleTexture(int diameter, Color color, float alpha) {
-        Pixmap pixmap = new Pixmap(diameter, diameter, Pixmap.Format.RGBA8888);
-        pixmap.setBlending(Pixmap.Blending.None);
-        pixmap.setColor(color.r, color.g, color.b, alpha);
-        pixmap.fillCircle(diameter / 2, diameter / 2, diameter / 2);
-        Texture texture = new Texture(pixmap);
-        pixmap.dispose(); // Освобождаем ресурсы Pixmap
-        return texture;
-    }
-
     private void drawTiledTexture(SpriteBatch batch, Texture texture, float x, float y, float width, float height) {
         // Рассчитываем масштабирование текстуры для повторения по ширине и высоте
         float u = width / texture.getWidth();

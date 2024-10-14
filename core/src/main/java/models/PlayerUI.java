@@ -12,7 +12,7 @@ public class PlayerUI {
     private Stage stage;
     private Player player;
 
-    private Table uiTable;
+    public Table uiTable;
     private Image heartImage;
     private Label healthLabel;
     private Image shieldImage;

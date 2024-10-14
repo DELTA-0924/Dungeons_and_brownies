@@ -135,27 +135,20 @@ public class Leaf {
         Vector2 point1=new Vector2(0,0);
         Vector2 point2=new Vector2(0,0);
         try {
-
-             point1 = new Vector2(
-                randomNumber((int) l.x + 60, (int) (l.x + l.width) - 60),
-                randomNumber((int) l.y + 60, (int) (l.y + l.height) - 60)
-            );
-             point2 = new Vector2(
-                randomNumber((int) r.x + 60, (int) (r.x + r.width) - 60),
-                randomNumber((int) r.y + 60, (int) (r.y + r.height) - 60)
-            );
-
-
-
+            point1=new Vector2(l.x+l.width/2,l.y+l.height/2);
+            point2=new Vector2(r.x+r.width/2,r.y+r.height/2);
+//             point1 = new Vector2(
+//                randomNumber((int) l.x + 75, (int) (l.x + l.width) - 75),
+//                randomNumber((int) l.y + 75, (int) (l.y + l.height) - 75)
+//            );
+//             point2 = new Vector2(
+//                randomNumber((int) r.x + 75, (int) (r.x + r.width) - 75),
+//                randomNumber((int) r.y + 75, (int) (r.y + r.height) - 75)
+//            );
         }catch (IllegalArgumentException e){
-//            System.out.println("rRoom x "+r.x + "width"+ r.width);
-//            System.out.println("rRoom x "+r.y+" height"+ r.height);
-//
-//            System.out.println("lRoom x "+l.x + " width"+ l.width);
-//            System.out.println("lRoom x "+l.y+" height"+ l.height);
         }
-        point1.set(point1.x-60,point1.y-60);
-        point2.set(point2.x-60,point2.y-60);
+        point1.set(point1.x,point1.y);
+        point2.set(point2.x,point2.y);
         // Вычисляем разницы между точками по X и Y
         float w = (point2.x) -(point1.x);
         float h =( point2.y)-( point1.y);

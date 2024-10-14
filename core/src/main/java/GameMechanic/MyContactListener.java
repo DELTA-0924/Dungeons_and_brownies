@@ -11,13 +11,35 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 
+import models.Enemy;
 import models.Player;
 
 public class MyContactListener implements ContactListener {
-
+    public boolean isPlayerTouchingEnemy = false;
+    public Enemy enemy;
     @Override
     public void beginContact(Contact contact) {
+        Fixture fixtureA = contact.getFixtureA();
+        Fixture fixtureB = contact.getFixtureB();
 
+        Body bodyA = fixtureA.getBody();
+        Body bodyB = fixtureB.getBody();
+
+        Object userDataA = bodyA.getUserData();
+        Object userDataB = bodyB.getUserData();
+
+        // Проверка, является ли один объект игроком, а другой врагом
+        if (userDataA instanceof Player && userDataB instanceof Enemy) {
+            System.out.println("Player contacted with Enemy");
+            Enemy enemy = (Enemy) userDataB;
+            enemy.attackPlayer();
+            isPlayerTouchingEnemy = true;
+        } else if (userDataA instanceof Enemy && userDataB instanceof Player) {
+            System.out.println("Enemy contacted with Player");
+            Enemy enemy = (Enemy) userDataA;
+            enemy.attackPlayer();
+            isPlayerTouchingEnemy = true;
+        }
     }
 
     @Override

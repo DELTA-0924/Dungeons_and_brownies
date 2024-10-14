@@ -69,6 +69,7 @@ public class GameLogic {
             } else if (moveY < 0) { // Движение вниз
                 player.body.setLinearVelocity(player.body.getLinearVelocity().x, 0);
             }
+            player.takeDamage(player.getHealth());
         }
     }
 }
