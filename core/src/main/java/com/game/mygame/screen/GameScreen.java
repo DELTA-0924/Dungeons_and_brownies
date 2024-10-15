@@ -24,6 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
@@ -66,12 +67,13 @@ public class GameScreen implements Screen , InputProcessor {
     Texture outDoorBackground;
     Enemy enemy;
     GameOverScreen gameover;
+    Array<Enemy> enemies = new Array<>();
     private MyContactListener contactListener;
     public GameScreen(final Roque game){
         this.game=game;
         int maxRooms=20;
 
-        world = new World(new Vector2(0, -9.8f), true);
+        world = new World(new Vector2(0, 0), true);
         contactListener=new MyContactListener();
         world.setContactListener(contactListener);
         debugRenderer = new Box2DDebugRenderer();
@@ -159,15 +161,18 @@ public class GameScreen implements Screen , InputProcessor {
                     break;
                 }
             }
-            player=new Player(world,character,playerPosY,playerPosX);
+            player=new Player(world,character,playerPosY,playerPosX,uiStage);
             gameover=new GameOverScreen(player,game,uiStage);
             character=new Texture("images/texture/character/knight-type-1.png");
+
             Leaf currentLeaf;
             for (int i = leaf.getLeafs().size() - 1; i >= 0; i--) {
                  currentLeaf = leaf.getLeafs().get(i);
                 if((currentLeaf.room.x+ currentLeaf.room.width)!=0 && ((currentLeaf.room.y+ currentLeaf.room.height)!=0)){
-                    enemy=new Enemy(world,player,10,5,500,10,currentLeaf.room,character);
-                    break;
+                    enemy=new Enemy(world,player,10,5,500,10,currentLeaf.room,character,uiStage);
+                    enemies.add(enemy);
+                    if(enemies.size>2)
+                        break;
                 }
             }
             gameLogic=new GameLogic(player,leaf.getLeafs());
@@ -223,7 +228,6 @@ public class GameScreen implements Screen , InputProcessor {
             uiStage.addActor(touchpad);
             uiStage.addActor(playButton);
             uiStage.addActor(attackButton);
-
         }
         @Override
         public void render(float delta) {
@@ -251,22 +255,28 @@ public class GameScreen implements Screen , InputProcessor {
           gameLogic.update(delta,moveX,moveY);
 
           player.render(game.batch);
-          enemy.render(game.batch);
+          for(Enemy enemy:enemies) {
+              enemy.render(game.batch);
+              enemy.update();
+          }
           game.batch.end();
 
           playerUI.update();
-          enemy.update();
-          uiStage.act(delta);
-          uiStage.draw();
-            attackButton.setVisible(contactListener.isPlayerTouchingEnemy);
+
+          attackButton.setVisible(contactListener.isPlayerTouchingEnemy);
+
+        if(player.dead) {
+            attackButton.setVisible(false);
+            playerUI.uiTable.setVisible(false);
+            playButton.setVisible(false);
+            touchpad.setVisible(false);
+            gameover.render(delta);
+            enemy.enemyUI.uiTable.setVisible(false);
+        }
+            uiStage.act(delta);
+            uiStage.draw();
           debugRenderer.render(world, camera.combined);
-            if(player.dead) {
-                attackButton.setVisible(false);
-                playerUI.uiTable.setVisible(false);
-                playButton.setVisible(false);
-                touchpad.setVisible(false);
-                gameover.render(delta);
-            }
+
         }
     @Override
     public void dispose() {
@@ -279,6 +289,7 @@ public class GameScreen implements Screen , InputProcessor {
         player.dispose();
         playerUI.dispose();
         gameover.dispose();
+        enemy.dispose();
     }
     private void drawTiledTexture(SpriteBatch batch, Texture texture, float x, float y, float width, float height) {
         // Рассчитываем масштабирование текстуры для повторения по ширине и высоте

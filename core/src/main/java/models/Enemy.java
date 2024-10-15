@@ -9,9 +9,11 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.TimeUtils;
 
 public class Enemy {
+    public EnemyUI enemyUI;
     private Texture character;
     private int attack;
     private int protection;
@@ -29,7 +31,7 @@ public class Enemy {
     private long lastAttackTime = 0;
     // Кулдаун в миллисекундах (например, 1000 миллисекунд = 1 секунда)
     private static final long attackCooldown = 1000;
-    public Enemy(World world, Player player, int health, int attack, int speed, int protection, Rectangle room,Texture character){
+    public Enemy(World world, Player player, int health, int attack, int speed, int protection, Rectangle room, Texture character, Stage stage){
         currentRoom=room;
         this.attack=attack;
         this.speed=speed;
@@ -41,11 +43,14 @@ public class Enemy {
         posX=currentRoom.x+currentRoom.width/2;
         posY=currentRoom.y+currentRoom.height/2;
         createEnemyBody(posX,posY);
+        enemyUI=new EnemyUI(stage,this);
+        enemyUI.uiTable.setVisible(false);
     }
     public void update() {
         if (isPlayerInRoom()) {
             // Если игрок в комнате, делаем врага агрессивным
-
+           enemyUI.uiTable.setVisible(true);
+           enemyUI.update();
             isAggressive = true;
         }
         else{
@@ -146,5 +151,7 @@ public class Enemy {
         return attack;
     }
 
-
+    public void dispose(){
+        enemyUI.dispose();
+    }
 }

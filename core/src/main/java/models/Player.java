@@ -8,8 +8,10 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.game.mygame.screen.GameOverScreen;
 import com.game.mygame.screen.common.CategoryBits;
+import com.game.mygame.screen.common.DamageText;
 
 public class Player {
     Texture texture;
@@ -19,12 +21,12 @@ public class Player {
     public Body body;
     private int  health=10,protection=5,attack=5;
     public Boolean dead=false;
-
-    public Player(World world, Texture texture , float x, float y ){
+    Stage stage;
+    public Player(World world, Texture texture , float x, float y , Stage stage){
         this.texture=texture;
         this.x=x;
         this.y=y;
-
+        this.stage=stage;
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set((this.x+width)/2, (this.y+height)/2);
         bodyDef.type = BodyDef.BodyType.DynamicBody; // Динамическое тело
@@ -46,10 +48,24 @@ public class Player {
         body.setUserData(this);
     }
     public void takeDamage(int damage){
-        if(health!=0)
-            health-=damage;
+
+        if(health!=0) {
+            health -= damage;
+            DamageText damageText = new DamageText(damage, this.getX(), this.getY()); // Передаем координаты игрока
+            stage.addActor(damageText);
+        }
         else
             dead=true;
+
+
+    }
+
+    private float getX() {
+        return body.getPosition().x-width/2;
+    }
+
+    private float getY() {
+        return body.getPosition().y-height/2;
     }
 
     public int getHealth(){
