@@ -1,13 +1,12 @@
-package models;
+package models.player;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+
 public class PlayerUI {
     private Stage stage;
     private Player player;
@@ -46,13 +45,13 @@ public class PlayerUI {
 
         // Создаём картинки и метки (без Skin)
         heartImage = new Image(heartTexture);
-        healthLabel = createLabel("HP: " + player.getHealth());
+        healthLabel = createLabel("HP: " + player.getStats().getHealth());
 
         shieldImage = new Image(shieldTexture);
-        defenseLabel = createLabel("DEF: " + player.getProtection());
+        defenseLabel = createLabel("DEF: " + player.getStats().getProtection());
 
         swordImage = new Image(swordTexture);
-        attackLabel = createLabel("ATK: " + player.getAttack());
+        attackLabel = createLabel("ATK: " + player.getStats().getAttack());
 
         // Масштабируем текст в метках
         healthLabel.setFontScale(2.0f); // Увеличиваем текст в 2 раза
@@ -85,9 +84,9 @@ public class PlayerUI {
 
     public void update() {
         // Обновляем значения здоровья, защиты и атаки
-        healthLabel.setText("HP: " + player.getHealth());
-        defenseLabel.setText("DEF: " + player.getProtection());
-        attackLabel.setText("ATK: " + player.getAttack());
+        healthLabel.setText("HP: " + player.getStats().getHealth());
+        defenseLabel.setText("DEF: " + player.getStats().getProtection());
+        attackLabel.setText("ATK: " + player.getStats().getAttack());
     }
 
     public void dispose() {

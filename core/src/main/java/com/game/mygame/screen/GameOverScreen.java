@@ -11,9 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
-import models.Player;
+import models.player.Player;
 
 public class GameOverScreen {
     private Stage stage;
@@ -25,7 +24,7 @@ public class GameOverScreen {
     public ImageButton restartButton;
     public Image blackScreen,playerSprite;
     public Label gameOverLabel;
-    public GameOverScreen(Player player,Roque game,Stage stage) {
+    public GameOverScreen(Player player, Roque game, Stage stage) {
         this.player = player;
         this.game=game;
         this.stage =stage;

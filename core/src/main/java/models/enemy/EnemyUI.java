@@ -1,4 +1,4 @@
-package models;
+package models.enemy;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 public class EnemyUI {
     private Stage stage;
-    private Enemy enemy;
+    private HealthComponent enemy;
 
     public Table uiTable;
     private Image heartImage;
@@ -24,7 +24,7 @@ public class EnemyUI {
     private Texture shieldTexture;
     private Texture swordTexture;
 
-    public EnemyUI(Stage stage, Enemy enemy) {
+    public EnemyUI(Stage stage, HealthComponent enemy) {
         this.stage = stage;
         this.enemy = enemy;
 

@@ -3,10 +3,9 @@ package GameMechanic;
 import com.badlogic.gdx.math.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import map.Leaf;
-import models.Player;
+import models.player.Player;
 
 public class GameLogic {
     private List<Rectangle> forbiddenRegions; // Список запрещённых областей
@@ -45,7 +44,7 @@ public class GameLogic {
 
     public void update(float deltaTime,float moveX,float moveY) {
         // Обновляем движение игрока
-        player.body.setLinearVelocity(moveX * player.speed, moveY * player.speed);
+        player.getBody().setLinearVelocity(moveX * player.getSpeed(), moveY * player.getSpeed());
 
         // Проверяем, находится ли игрок в пределах проходимой области
         boolean isInNavigableRegion = false;
@@ -60,16 +59,16 @@ public class GameLogic {
         // Если игрок покинул все проходимые области, останавливаем его движение в этом направлении
         if (!isInNavigableRegion) {
             if (moveX > 0) { // Движение вправо
-                player.body.setLinearVelocity(0, player.body.getLinearVelocity().y);
+                player.getBody().setLinearVelocity(0, player.getBody().getLinearVelocity().y);
             } else if (moveX < 0) { // Движение влево
-                player.body.setLinearVelocity(0, player.body.getLinearVelocity().y);
+                player.getBody().setLinearVelocity(0, player.getBody().getLinearVelocity().y);
             }
             if (moveY > 0) { // Движение вверх
-                player.body.setLinearVelocity(player.body.getLinearVelocity().x, 0);
+                player.getBody().setLinearVelocity(player.getBody().getLinearVelocity().x, 0);
             } else if (moveY < 0) { // Движение вниз
-                player.body.setLinearVelocity(player.body.getLinearVelocity().x, 0);
+                player.getBody().setLinearVelocity(player.getBody().getLinearVelocity().x, 0);
             }
-            player.takeDamage(player.getHealth());
+            player.takeDamage(player.getStats().getHealth()+player.getStats().getProtection());
         }
     }
 }

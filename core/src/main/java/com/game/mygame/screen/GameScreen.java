@@ -3,9 +3,7 @@ package com.game.mygame.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -32,12 +30,12 @@ import com.badlogic.gdx.physics.box2d.World;
 
 import GameMechanic.GameLogic;
 import GameMechanic.MyContactListener;
-import models.Enemy;
-import models.Player;
 import map.Leaf;
 import map.LeafGenerator;
 import map.Map;
-import models.PlayerUI;
+import models.enemy.Enemy;
+import models.player.PlayerUI;
+import models.player.Player;
 
 public class GameScreen implements Screen , InputProcessor {
 
@@ -169,7 +167,7 @@ public class GameScreen implements Screen , InputProcessor {
             for (int i = leaf.getLeafs().size() - 1; i >= 0; i--) {
                  currentLeaf = leaf.getLeafs().get(i);
                 if((currentLeaf.room.x+ currentLeaf.room.width)!=0 && ((currentLeaf.room.y+ currentLeaf.room.height)!=0)){
-                    enemy=new Enemy(world,player,10,5,500,10,currentLeaf.room,character,uiStage);
+                    enemy=new Enemy(world,character,currentLeaf.room,player,uiStage);
                     enemies.add(enemy);
                     if(enemies.size>2)
                         break;
@@ -207,8 +205,9 @@ public class GameScreen implements Screen , InputProcessor {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     if (contactListener.isPlayerTouchingEnemy && contactListener.currentEnemy != null) {
-                        contactListener.currentEnemy.takeDamage(player.getAttack()); // Наносим урон текущему врагу
+                        contactListener.currentEnemy.takeDamage(player.getStats().getAttack()); // Наносим урон текущему врагу
                     }
+
                 }
             });
             attackButton.setSize(128,128);
@@ -233,8 +232,15 @@ public class GameScreen implements Screen , InputProcessor {
         public void render(float delta) {
             ScreenUtils.clear(0, 0, 0, 1);
             world.step(1/60f, 6, 2);
-
-            camera.position.set(player.body.getPosition().x, player.body.getPosition().y, 0);
+            for (int i = enemies.size - 1; i >= 0; i--) {
+                Enemy enemy = enemies.get(i);
+                if (enemy.isDead()) {
+                    enemy.enemyUI.uiTable.setVisible(false);
+                    enemy.dispose(world); // Удаляем тело из мира
+                    enemies.removeIndex(i); // Удаляем врага из массива
+                }
+            }
+            camera.position.set(player.getBody().getPosition().x, player.getBody().getPosition().y, 0);
             camera.update();
             uiStage.getViewport().apply();
             game.batch.setProjectionMatrix(camera.combined);
@@ -265,7 +271,7 @@ public class GameScreen implements Screen , InputProcessor {
 
           attackButton.setVisible(contactListener.isPlayerTouchingEnemy);
 
-        if(player.dead) {
+        if(player.isDead()) {
             attackButton.setVisible(false);
             playerUI.uiTable.setVisible(false);
             playButton.setVisible(false);
