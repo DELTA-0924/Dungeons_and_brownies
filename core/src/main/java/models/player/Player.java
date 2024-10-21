@@ -87,4 +87,11 @@ public class Player {
         renderComponent.dispose();
         expsys.dispose();
     }
+    public void setStats(HealthComponent stats)
+    {
+        healthComponent.setHealth(stats.getHealth());
+        healthComponent.setProtection(stats.getProtection());
+        healthComponent.setAttack(stats.getAttack());
+    }
+
 }

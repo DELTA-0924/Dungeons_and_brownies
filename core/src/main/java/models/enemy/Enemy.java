@@ -32,7 +32,7 @@ public class Enemy {
         posY=currentRoom.y+currentRoom.height/2;
         spawnPos=new Vector2(posX,posY);
         physicsComponent=new PhysicsComponent(world,posX,posY,width, height);
-        healthComponent=new HealthComponent(10,5,5);
+        healthComponent=new HealthComponent("type1",10,5,5);
         combatComponent=new CombatComponent(healthComponent);
         renderComponent=new RenderComponent(texture,width,height);
         expsys=new EnemyLevelSystem(getStats());
@@ -118,6 +118,13 @@ public class Enemy {
     public HealthComponent getStats(){
         return healthComponent;
     }
+    public void setStats(HealthComponent stats){
+        healthComponent.setHealth(stats.getHealth());
+        healthComponent.setAttack(stats.getAttack());
+        healthComponent.setProtection(stats.getProtection());
+        healthComponent.type=stats.type;
+    }
+
     public int getLvl(){
         return expsys.getLevel();
     }

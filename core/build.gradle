@@ -6,4 +6,8 @@ dependencies {
   api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
   api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
+  implementation files('build/libs/gdx-sqlite.jar')
+  implementation files('build/libs/gdx-sqlite-android.jar')
+  // https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
+
 }

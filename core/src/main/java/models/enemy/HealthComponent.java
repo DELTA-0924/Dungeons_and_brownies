@@ -5,11 +5,12 @@ public class HealthComponent {
     private int protection;
     private int attack;
     private boolean dead;
-    public HealthComponent(int health,int attack,int protection){
+    public String type;
+    public HealthComponent(String type,int health,int attack,int protection){
         this.attack=attack;
         this.health=health;
         this.protection=protection;
-
+        this.type=type;
     }
 
     public void takeDamage(int damage){

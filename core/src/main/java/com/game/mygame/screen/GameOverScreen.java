@@ -84,6 +84,7 @@ public class GameOverScreen {
 
     private void restartGame() {
         player.reset();
+        game.db.deleteData();
         game.setScreen(new MainMenuScreen(game));
     }
 

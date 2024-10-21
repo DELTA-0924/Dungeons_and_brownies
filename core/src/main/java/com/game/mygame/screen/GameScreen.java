@@ -28,18 +28,22 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import com.badlogic.gdx.physics.box2d.World;
 
+import java.util.Random;
+
 import GameMechanic.GameLogic;
 import GameMechanic.MyContactListener;
 import map.Leaf;
 import map.LeafGenerator;
 import map.Map;
 import models.enemy.Enemy;
+import models.enemy.HealthComponent;
 import models.player.PlayerUI;
 import models.player.Player;
 
 public class GameScreen implements Screen , InputProcessor {
 
     private World world;
+    Random rand=new Random();
     OrthographicCamera camera;
     private Touchpad touchpad;
     private Touchpad.TouchpadStyle touchpadStyle;
@@ -50,12 +54,12 @@ public class GameScreen implements Screen , InputProcessor {
     Stage uiStage;
     private Button  playButton,attackButton;
     private Texture  playTexture,attackButtonTexture;
-    boolean mapGenereted=false;
     Texture roomBackground;
     Texture hallWayBackground;
     private Texture touchBackground;
     private Texture touchKnob;
     Texture character;
+    Array<Texture>enemieTextures;
     int width=1920,cameraWidth=800;
     int height=1080 ,cameraHeight=480;
     GameLogic gameLogic;
@@ -66,7 +70,19 @@ public class GameScreen implements Screen , InputProcessor {
     Enemy enemy;
     GameOverScreen gameover;
     Array<Enemy> enemies = new Array<>();
+    Array<HealthComponent> startStatsEnemy=new Array<HealthComponent>();
+    HealthComponent startStatsEnemyType1=new HealthComponent("Type1",10,5,5);
+    HealthComponent startStatsEnemyType2=new HealthComponent("Type2",15,10,10);
+    HealthComponent startStatsEnemyType3=new HealthComponent("Type3",10,5,5);
     private MyContactListener contactListener;
+    private boolean loaded=false;
+    private models.player.HealthComponent playerStats;
+    private  Array<HealthComponent> enemyStats;
+    public void setStats(Array<HealthComponent> enemies, models.player.HealthComponent playerStats,boolean loaded){
+        this.playerStats=playerStats;
+        this.enemyStats=enemies;
+        this.loaded=loaded;
+    }
     public GameScreen(final Roque game){
         this.game=game;
         int maxRooms=20;
@@ -82,7 +98,6 @@ public class GameScreen implements Screen , InputProcessor {
         camera.setToOrtho(false,cameraWidth,cameraHeight);
 
         uiStage = new Stage(new ScreenViewport());
-
 /*
         upTexture=new Texture("images/screen/buttonup.png");
         downTexture=new Texture("images/screen/buttondown.png");
@@ -133,7 +148,6 @@ public class GameScreen implements Screen , InputProcessor {
         });
 
 */
-
         leaf=new LeafGenerator();
         leaf.generateLeaves(1500,1200,maxRooms);
 
@@ -143,9 +157,6 @@ public class GameScreen implements Screen , InputProcessor {
 //
 //                currentLeaf.room.width, currentLeaf.room.height,currentLeaf.halls);
 //        }
-
-
-
         Gdx.input.setInputProcessor(uiStage);
     }
         @Override
@@ -160,17 +171,34 @@ public class GameScreen implements Screen , InputProcessor {
                 }
             }
             player=new Player(world,character,playerPosY,playerPosX,uiStage);
-            gameover=new GameOverScreen(player,game,uiStage);
-            character=new Texture("images/texture/character/knight-type-1.png");
 
+            gameover=new GameOverScreen(player,game,uiStage);
+            enemieTextures=new Array<Texture>();
+                enemieTextures.add(new Texture("images/texture/character/knight-type-1.png"));
+                enemieTextures.add(new Texture("images/texture/character/knight-type-2.png"));
+                enemieTextures.add(new Texture("images/texture/character/knight-type-3.png"));
             Leaf currentLeaf;
+            int j=0;
             for (int i = leaf.getLeafs().size() - 1; i >= 0; i--) {
                  currentLeaf = leaf.getLeafs().get(i);
                 if((currentLeaf.room.x+ currentLeaf.room.width)!=0 && ((currentLeaf.room.y+ currentLeaf.room.height)!=0)){
-                    enemy=new Enemy(world,character,currentLeaf.room,player,uiStage);
+                    enemy=new Enemy(world,enemieTextures.get(j++),currentLeaf.room,player,uiStage);
                     enemies.add(enemy);
                     if(enemies.size>2)
                         break;
+                }
+            }
+            if(loaded){
+                player.setStats(playerStats);
+                for(int i=0;i<enemies.size;i++){
+                    enemies.get(i).setStats(enemyStats.get(0));
+                }
+            }else{
+                startStatsEnemy.add(startStatsEnemyType1);
+                startStatsEnemy.add(startStatsEnemyType2);
+                startStatsEnemy.add(startStatsEnemyType3);
+                for(int i=0;i<enemies.size;i++){
+                    enemies.get(i).setStats(startStatsEnemy.get(i));
                 }
             }
             gameLogic=new GameLogic(player,leaf.getLeafs());
@@ -219,6 +247,19 @@ public class GameScreen implements Screen , InputProcessor {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     game.setScreen(new MainMenuScreen(game));
+                    Array<HealthComponent>enemiesStats=new Array<models.enemy.HealthComponent>();
+                    if(enemies.isEmpty())
+                    {
+                        enemiesStats.add(startStatsEnemyType1);
+                        enemiesStats.add(startStatsEnemyType2);
+                        enemiesStats.add(startStatsEnemyType3);
+                        game.db.saveData(player.getStats(),enemiesStats);
+                    }else{
+                       for(var stats:enemies){
+                           enemiesStats.add(stats.getStats());
+                       }
+                        game.db.saveData(player.getStats(),enemiesStats);
+                    }
                 }
             });
             playButton.setSize(64,64);
@@ -227,6 +268,19 @@ public class GameScreen implements Screen , InputProcessor {
             uiStage.addActor(touchpad);
             uiStage.addActor(playButton);
             uiStage.addActor(attackButton);
+        }
+        public void Spawn(){
+            Leaf currentLeaf;
+            int j=0;
+            while(true){
+                currentLeaf = leaf.getLeafs().get(rand.nextInt(leaf.getLeafs().size()-1));
+                if((currentLeaf.room.x+ currentLeaf.room.width)!=0 && ((currentLeaf.room.y+ currentLeaf.room.height)!=0)){
+                    enemy=new Enemy(world,enemieTextures.get(j++),currentLeaf.room,player,uiStage);
+                    enemies.add(enemy);
+                    if(enemies.size>2)
+                        break;
+                }
+            }
         }
         @Override
         public void render(float delta) {
@@ -261,10 +315,13 @@ public class GameScreen implements Screen , InputProcessor {
           gameLogic.update(delta,moveX,moveY);
 
           player.render(game.batch);
+            if(enemies.isEmpty())
+                Spawn();
           for(Enemy enemy:enemies) {
               enemy.render(game.batch);
               enemy.update();
           }
+
           game.batch.end();
 
           playerUI.update();
@@ -284,6 +341,7 @@ public class GameScreen implements Screen , InputProcessor {
           debugRenderer.render(world, camera.combined);
 
         }
+
     @Override
     public void dispose() {
         stage.dispose();
