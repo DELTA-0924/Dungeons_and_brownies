@@ -3,33 +3,25 @@
 A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
 
 This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+# Игровой проект: Random Map Generation with Enemies
 
-## Platforms
+Это проект игры, разработанный с использованием **Java**, **Android Studio** и **LibGDX**, в которой генерируется случайная карта с комнатами. В игре присутствуют враги, которые нападают, если игрок входит на их территорию.
 
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3.
-- `android`: Android mobile platform. Needs Android SDK.
+## Описание
 
-## Gradle
+Игрок управляет персонажем, который перемещается по случайно сгенерированным карте. Карта состоит из нескольких комнат, и в каждой комнате могут быть враги, которые начинают нападать на игрока, как только тот войдет на их территорию. Игрок должен избегать врагов или сражаться с ними, чтобы выжить и пройти через все комнаты.
 
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
+### Особенности игры:
 
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `android:lint`: performs Android project validation.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
+- **Случайная генерация карты**: каждый раз создается новая карта с различными комнатами и врагами.
+- **Враги и столкновения**: враги начинают атаковать, как только игрок попадает на их территорию.
+- **Управление персонажем**: игрок может двигаться по экрану с помощью сенсорных событий.
+- **LibGDX**: Используется для графики, физики и логики игры.
 
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
+## Технологии
+
+- **Java** — основной язык программирования.
+- **Android Studio** — среда разработки для создания Android-приложений.
+- **LibGDX** — фреймворк для создания игр, используется для рендеринга графики, физики и работы с событиями.
+- **Box2D** — физический движок для столкновений объектов (возможно используется для столкновений персонажа и врагов).
+  
